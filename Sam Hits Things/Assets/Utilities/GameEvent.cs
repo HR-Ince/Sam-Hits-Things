@@ -13,9 +13,10 @@ public class GameEvent : ScriptableObject
     { listeners.Remove(gel); }
     public void Invoke()
     {
+        if (listeners.Count <= 0)
+            return;
+
         for(int i = listeners.Count - 1; i > 0; i--)
-        {
-            listeners[i].Fire();
-        }
+        { listeners[i].Fire(); }
     }
 }
