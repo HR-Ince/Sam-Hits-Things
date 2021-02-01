@@ -4,27 +4,34 @@ using UnityEngine;
 
 public class Movement : MonoBehaviour
 {
-    [SerializeField] MouseData mouseData;
+    [SerializeField] float minimumDrawForLaunch = 10f;
     [SerializeField] float thrustModifier = 10f;
 
-    Rigidbody rigidBody;
+    [SerializeField] MouseData mouseData;
+    
+    private Rigidbody rigidBody;
 
     private void Awake()
     {
         rigidBody = GetComponent<Rigidbody>();
     }
-
+    private void FixedUpdate()
+    {
+        if (Input.GetMouseButtonUp(0))
+        {
+            InputMove();
+        }
+    }
     public void InputMove()
-    {        
-        Vector2 transPos2 = new Vector2(transform.position.x, transform.position.y);
-        Vector2 launchVector = (mouseData.ClickPos - transPos2) / Vector2.Distance(transPos2, mouseData.ClickPos);
-
-        Move(launchVector * (mouseData.DragLength * thrustModifier));
+    {
+        if (mouseData.DrawPercentage > minimumDrawForLaunch)
+            Move(mouseData.DirectionVector * (mouseData.DrawPercentage * thrustModifier));
+        else
+            Debug.Log("Draw under minimum");
     }
 
     private void Move(Vector2 force)
     {
-        print(force);
-        rigidBody.AddForce(force);
+        rigidBody.AddForce(force, ForceMode.Impulse);
     }
 }

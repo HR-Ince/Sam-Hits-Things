@@ -8,10 +8,10 @@ public class GameEventListener : MonoBehaviour
     [SerializeField] GameEvent gameEvent;
     [SerializeField] UnityEvent response;
 
-    private void Awake()
-    {
-        gameEvent.AddListener(this);
-    }
+    private void OnEnable()
+    { gameEvent.AddListener(this); }
+    private void OnDisable()
+    { gameEvent.RemoveListener(this); }
     public void Fire()
     {
         if (response != null)

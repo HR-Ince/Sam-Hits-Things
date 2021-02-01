@@ -12,3 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6c3c4ad34114f74ca8e1b79050a6cae, type: 3}
   m_Name: MouseData
   m_EditorClassIdentifier: 
+  pressWorldPos: {x: 0, y: 0}
+  directionalVector: {x: 0, y: 0}
+  dragLength: 100
