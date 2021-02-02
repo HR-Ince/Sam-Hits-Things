@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(LineRenderer))]
 public class LineDrawer : MonoBehaviour
 {
     [SerializeField] float lineWidth = 1f;
     [SerializeField] Color baseColor = Color.black;
     [SerializeField] Color maxedColor = Color.red;
 
-    [SerializeField] MouseData mouseData;
     [SerializeField] PlayerRegister register;
 
     private LineRenderer line;
@@ -16,7 +16,6 @@ public class LineDrawer : MonoBehaviour
     private void Awake()
     {
         line = GetComponent<LineRenderer>();
-        if (!line) { Debug.LogError("Line Renderer missing from LineDrawer Gameobject"); return; }
         line.startWidth = lineWidth;
         line.endWidth = lineWidth;
         line.enabled = false;
@@ -28,12 +27,10 @@ public class LineDrawer : MonoBehaviour
         line.SetPosition(0, register.PlayerOne.transform.position);
         line.SetPosition(1, line.GetPosition(0));
     }
-    public void SetLinePositions()
+    public void SetLinePositions(Vector3 targetVector)
     {
-        if(mouseData.DrawPercentage <= 0.0f) { return; }
+        //if(mouseData.DrawPercentage <= 0.0f) { return; }
 
-        Vector3 lineEnd = mouseData.TargetPos;
-
-        line.SetPosition(1, lineEnd);
+        line.SetPosition(1, targetVector);
     }
 }
