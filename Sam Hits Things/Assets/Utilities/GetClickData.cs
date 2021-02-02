@@ -17,7 +17,7 @@ public class GetClickData : MonoBehaviour
     private Vector3 pressedPosWorld;
 
     public void SetPressPos()
-    {        
+    { 
         if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, Mathf.Infinity, targetableLayer))
         {
             pressedPosScreen = Input.mousePosition;
