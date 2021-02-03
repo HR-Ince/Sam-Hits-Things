@@ -14,6 +14,12 @@ public class Launcher : MonoBehaviour
     {
         rigidBody = GetComponent<Rigidbody>();
     }
+    public void SetGravity(bool useGravity)
+    {
+        if(useGravity == false)
+            rigidBody.velocity = Vector3.zero;
+        rigidBody.useGravity = useGravity;
+    }
     public void Launch(Vector2 dirVector, float drawPercentage)
     {
         float thrust = drawPercentage * thrustModifier;
