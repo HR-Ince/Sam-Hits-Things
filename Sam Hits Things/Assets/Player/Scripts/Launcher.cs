@@ -14,7 +14,7 @@ public class Launcher : MonoBehaviour
     {
         rigidBody = GetComponent<Rigidbody>();
     }
-    public void SetGravity(bool useGravity)
+    public void SetUseGravity(bool useGravity)
     {
         if(useGravity == false)
             rigidBody.velocity = Vector3.zero;

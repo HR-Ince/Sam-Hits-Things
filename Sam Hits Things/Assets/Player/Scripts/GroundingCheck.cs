@@ -4,26 +4,21 @@ using UnityEngine;
 
 public class GroundingCheck : MonoBehaviour
 {
-    [SerializeField] LayerMask groundLayer;
+    [SerializeField] float groundLayerNumber;
 
     private bool isGrounded;
-    private Collider groundingBox;
+    public bool IsGrounded { get { return isGrounded; } }
 
-    private void Awake()
-    {
-        groundingBox = GetComponent<Collider>();
-    }
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.layer == groundLayer)
+        if (other.gameObject.layer == groundLayerNumber)
+        {
             isGrounded = true;
+        }
+            
     }
     private void OnTriggerExit(Collider other)
     {
         isGrounded = false;        
-    }
-    public bool GetIsGrounded()
-    {
-        return isGrounded;
     }
 }

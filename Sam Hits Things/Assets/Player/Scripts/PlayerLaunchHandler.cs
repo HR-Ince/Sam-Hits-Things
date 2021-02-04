@@ -2,18 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Launcher))]
 public class PlayerLaunchHandler : MonoBehaviour
 {
     [SerializeField] bool allowLaunchInAir = true;
     [SerializeField] float targetMaximumExtension = 10f;
+    [SerializeField] float cameraClippingPlane = 10f;
     [SerializeField] WorldStats stats;
     [SerializeField] LayerMask targetableLayer;
 
     private float drawPercentage;
+    private GameObject target;
     private Vector3 dirVector;
     private Vector3 objectPos;
     private Vector3 targetVector;
-    private Vector3 pressedPosScreen;
     private Vector3 pressedPosWorld;
 
     private GroundingCheck grounding;
@@ -24,37 +26,40 @@ public class PlayerLaunchHandler : MonoBehaviour
 
     private void Awake()
     {
+        launcher = GetComponent<Launcher>();
+
         input = GetComponent<PlayerInput>();
         if(input == null) { Debug.LogError("PlayerInput missing from PlayerLaunchHandler gameobject"); }
-        launcher = GetComponent<Launcher>();
-        if (launcher == null) { Debug.LogError("Launcher missing from PlayerLaunchHandler gameobject"); }
         grounding = GetComponentInChildren<GroundingCheck>();
         if(grounding == null) { Debug.LogError("GroundingCheck missing from children of PlayerLaunchHandler gameobject"); }
         line = GetComponentInChildren<LineDrawer>();
         if(line == null) { Debug.LogError("LineDrawer missing from children of PlayerLaunchHandler gameobject"); }
         sprite = GetComponent<SpriteController>();
+
+        target = launcher.gameObject;
     }
     private void Update()
     {
-        if(!allowLaunchInAir && grounding.GetIsGrounded() == false) { return; }
-        if (input.PressInput)
+        if(!allowLaunchInAir && !grounding.IsGrounded) { return; }
+        if (input.Pressed)
         {
             if (allowLaunchInAir)
-                launcher.SetGravity(false);
+                launcher.SetUseGravity(false);
             SetObjectPos();
             SetPressPos();
         }
-        if (input.PressHeldInput)
+        if (input.PressHeld)
         {
-            BeginTargeting();
-            GetDragLength();
+            Vector3 worldInputPos = Camera.main.ScreenToWorldPoint(new Vector3(input.PressPos.x, input.PressPos.y, cameraClippingPlane));
+            AdjustTargetting(worldInputPos);
+            GetDragLength(worldInputPos);
             sprite.SortSpriteFacing(dirVector);
-            line.SetLinePositions(1, targetVector);
+            line.SetLinePositions(targetVector, drawPercentage);
         }
-        if (input.PressReleasedInput)
+        if (input.PressReleased)
         {
             if (allowLaunchInAir)
-                launcher.SetGravity(true);
+                launcher.SetUseGravity(true);
             launcher.Launch(dirVector, drawPercentage);
             stats.LaunchesMade++;
             line.DisableLine();
@@ -62,42 +67,35 @@ public class PlayerLaunchHandler : MonoBehaviour
         }
     }
     private void SetPressPos()
-    { 
-        if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, Mathf.Infinity, targetableLayer))
-        {
-            pressedPosScreen = Input.mousePosition;
-            pressedPosWorld = hit.point;
-        }
+    {
+        pressedPosWorld = Camera.main.ScreenToWorldPoint(new Vector3(input.PressPos.x, input.PressPos.y, cameraClippingPlane));
     }
     private void SetObjectPos()
     {
-        objectPos = launcher.gameObject.transform.position;
+        objectPos = target.transform.position;
         line.SetFirstPoint(objectPos);
     }
-    private void BeginTargeting()
+    private void AdjustTargetting(Vector3 inputPos)
     {
-        Vector3 worldTarget = Vector3.zero;
-        if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, Mathf.Infinity, targetableLayer))
-            worldTarget = hit.point;
+        Vector3 posDif = Vector3.ClampMagnitude(pressedPosWorld - inputPos, targetMaximumExtension);
+        targetVector = target.transform.position + posDif;
+        dirVector = posDif / Vector3.Distance(target.transform.position, targetVector);
 
-        AdjustTargetting(objectPos, worldTarget);
+        if (grounding.IsGrounded)
+        {
+            dirVector = new Vector3(dirVector.x, Mathf.Max(dirVector.y, 0.00f));
+            targetVector = new Vector3(targetVector.x, Mathf.Max(target.transform.position.y, targetVector.y));
+        }
+
     }
-    private void AdjustTargetting(Vector3 originPos, Vector3 inputPos)
+    private void GetDragLength(Vector3 inputPos)
     {
-        Vector3 posDif = Vector3.ClampMagnitude(new Vector3(pressedPosWorld.x - inputPos.x, pressedPosWorld.y - inputPos.y), targetMaximumExtension);
-        targetVector = originPos + posDif;
-        Vector3 aimVector = pressedPosWorld + posDif;
-
-        dirVector = posDif / Vector3.Distance(originPos, targetVector);        
-    }
-    private void GetDragLength()
-    {
-        Vector3 inputPos = Input.mousePosition;
-
-        float magnitiude = Vector3.Distance(pressedPosScreen, inputPos);
-        float magAsPercent = Mathf.Clamp(magnitiude / (targetMaximumExtension * Screen.dpi) * 100, 0, 100);
-
+        float magnitiude = Vector3.Distance(pressedPosWorld, inputPos);
+                
+        float magAsPercent = Mathf.Clamp(magnitiude / targetMaximumExtension * 100, 0, 100);
         drawPercentage = magAsPercent;
+
+        print(magAsPercent);
     }
     private void ResetValues()
     {
