@@ -13,10 +13,10 @@ TagManager:
   - UI
   - 
   - 
-  - TargetablePlane
   - Player
   - Enemies
-  - Surfaces
+  - Walls
+  - Floors
   - 
   - 
   - 
@@ -38,6 +38,9 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Background
+    uniqueID: 2257844443
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0

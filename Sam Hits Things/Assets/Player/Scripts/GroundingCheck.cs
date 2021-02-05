@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GroundingCheck : MonoBehaviour
 {
-    [SerializeField] float groundLayerNumber;
+    [SerializeField] int groundLayerNumber;
 
     private bool isGrounded;
     public bool IsGrounded { get { return isGrounded; } }

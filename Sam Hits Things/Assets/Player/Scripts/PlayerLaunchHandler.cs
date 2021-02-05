@@ -2,15 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Launcher))]
+[RequireComponent(typeof(Movement))]
 public class PlayerLaunchHandler : MonoBehaviour
 {
     [SerializeField] bool allowLaunchInAir = true;
     [SerializeField] float targetMaximumExtension = 10f;
-    [SerializeField] float cameraClippingPlane = 10f;
     [SerializeField] WorldStats stats;
-    [SerializeField] LayerMask targetableLayer;
 
+    private float cameraDepth;
     private float drawPercentage;
     private GameObject target;
     private Vector3 dirVector;
@@ -20,21 +19,25 @@ public class PlayerLaunchHandler : MonoBehaviour
 
     private GroundingCheck grounding;
     private PlayerInput input;
-    private Launcher launcher;
+    private Movement launcher;
     private LineDrawer line;
-    private SpriteController sprite;
+    private SpriteController spriteController;
 
     private void Awake()
     {
-        launcher = GetComponent<Launcher>();
+        launcher = GetComponent<Movement>();
 
         input = GetComponent<PlayerInput>();
         if(input == null) { Debug.LogError("PlayerInput missing from PlayerLaunchHandler gameobject"); }
+        
+        spriteController = GetComponentInChildren<SpriteController>();
+        if(spriteController == null) { Debug.LogError("SpriteController missing from PlayerLaunchHandler gameobject"); }
         grounding = GetComponentInChildren<GroundingCheck>();
         if(grounding == null) { Debug.LogError("GroundingCheck missing from children of PlayerLaunchHandler gameobject"); }
         line = GetComponentInChildren<LineDrawer>();
         if(line == null) { Debug.LogError("LineDrawer missing from children of PlayerLaunchHandler gameobject"); }
-        sprite = GetComponent<SpriteController>();
+
+        cameraDepth = -Camera.main.transform.position.z;
 
         target = launcher.gameObject;
     }
@@ -50,34 +53,34 @@ public class PlayerLaunchHandler : MonoBehaviour
         }
         if (input.PressHeld)
         {
-            Vector3 worldInputPos = Camera.main.ScreenToWorldPoint(new Vector3(input.PressPos.x, input.PressPos.y, cameraClippingPlane));
-            AdjustTargetting(worldInputPos);
-            GetDragLength(worldInputPos);
-            sprite.SortSpriteFacing(dirVector);
+            Vector3 inputPosWorld = Camera.main.ScreenToWorldPoint(new Vector3(input.PressPos.x, input.PressPos.y, cameraDepth));
+            AdjustTargetting(inputPosWorld);
+            GetDragLength(inputPosWorld);
+            spriteController.SortSpriteFacing(dirVector);
             line.SetLinePositions(targetVector, drawPercentage);
         }
         if (input.PressReleased)
         {
             if (allowLaunchInAir)
                 launcher.SetUseGravity(true);
-            launcher.Launch(dirVector, drawPercentage);
-            stats.LaunchesMade++;
+            if(launcher.Launch(dirVector, drawPercentage))
+                stats.LaunchesMade++;
             line.DisableLine();
             ResetValues();
         }
     }
     private void SetPressPos()
     {
-        pressedPosWorld = Camera.main.ScreenToWorldPoint(new Vector3(input.PressPos.x, input.PressPos.y, cameraClippingPlane));
+        pressedPosWorld = Camera.main.ScreenToWorldPoint(new Vector3(input.PressPos.x, input.PressPos.y, cameraDepth));
     }
     private void SetObjectPos()
     {
         objectPos = target.transform.position;
         line.SetFirstPoint(objectPos);
     }
-    private void AdjustTargetting(Vector3 inputPos)
+    private void AdjustTargetting(Vector3 inputPosWorld)
     {
-        Vector3 posDif = Vector3.ClampMagnitude(pressedPosWorld - inputPos, targetMaximumExtension);
+        Vector3 posDif = Vector3.ClampMagnitude(pressedPosWorld - inputPosWorld, targetMaximumExtension);
         targetVector = target.transform.position + posDif;
         dirVector = posDif / Vector3.Distance(target.transform.position, targetVector);
 
@@ -88,14 +91,11 @@ public class PlayerLaunchHandler : MonoBehaviour
         }
 
     }
-    private void GetDragLength(Vector3 inputPos)
+    private void GetDragLength(Vector3 inputPosWorld)
     {
-        float magnitiude = Vector3.Distance(pressedPosWorld, inputPos);
-                
-        float magAsPercent = Mathf.Clamp(magnitiude / targetMaximumExtension * 100, 0, 100);
-        drawPercentage = magAsPercent;
+        float magnitiude = Vector3.Distance(pressedPosWorld, inputPosWorld);
 
-        print(magAsPercent);
+        drawPercentage = Mathf.Clamp(magnitiude / targetMaximumExtension * 100, 0, 100);
     }
     private void ResetValues()
     {

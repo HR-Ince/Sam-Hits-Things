@@ -10,9 +10,13 @@ public class WorldStats : ScriptableObject
     public int LaunchesMade { get { return launchesMade; } set { launchesMade = value; } }
     public int EnemiesInLevel { get { return enemiesInLevel; } set { enemiesInLevel = value; } }
 
-    private void OnDisable()
+    private void OnEnable()
     {
-        LaunchesMade = 0;
-        EnemiesInLevel = 0;
+        Reset();
+    }
+    public void Reset()
+    {
+        launchesMade = 0;
+        enemiesInLevel = 0;
     }
 }

@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class PlayerRegistration : MonoBehaviour
 {
-    [SerializeField] PlayerRegister playerRegister;
+    [SerializeField] PlayerRegister register;
 
-    private void Awake()
+    private void OnEnable()
     {
-        playerRegister.PlayerOne = gameObject;
+        register.PlayerOne = gameObject;
+        register.SpawnPoint = transform.position;
     }
 }

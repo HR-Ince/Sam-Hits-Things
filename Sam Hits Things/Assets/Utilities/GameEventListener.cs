@@ -16,7 +16,6 @@ public class GameEventListener : MonoBehaviour
     {
         if (response != null)
         {
-            print("Fire GEL");
             response.Invoke();
         }
             

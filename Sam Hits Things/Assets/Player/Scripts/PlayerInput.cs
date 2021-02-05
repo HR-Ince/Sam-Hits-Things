@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PlayerInput : MonoBehaviour
 {
+    [SerializeField] WorldState worldState;
+
     private bool pressed;
     private bool pressHeld;
     private bool pressReleased;
@@ -16,6 +18,7 @@ public class PlayerInput : MonoBehaviour
 
     private void Update()
     {
+        if (!worldState.InGame) { return; }
         pressed = Input.GetMouseButtonDown(0);
         pressHeld = Input.GetMouseButton(0);
         pressReleased = Input.GetMouseButtonUp(0);
