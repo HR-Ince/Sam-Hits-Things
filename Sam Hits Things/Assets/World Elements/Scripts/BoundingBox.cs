@@ -6,8 +6,6 @@ public class BoundingBox : MonoBehaviour
 {
     [SerializeField] PlayerRegister register;
 
-    private Vector3 checkpoint;
-
     private void OnTriggerExit(Collider other)
     {
         if (other.gameObject.CompareTag("Player"))

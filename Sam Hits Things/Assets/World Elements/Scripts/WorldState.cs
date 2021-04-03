@@ -5,6 +5,8 @@ using UnityEngine;
 [CreateAssetMenu]
 public class WorldState : ScriptableObject
 {
+    [SerializeField] private float floorLayer, wallLayer;
+
     [Min(1)] int lastLevelPlayed;
     public int LastLevelPlayed { get { return lastLevelPlayed; } 
         set 

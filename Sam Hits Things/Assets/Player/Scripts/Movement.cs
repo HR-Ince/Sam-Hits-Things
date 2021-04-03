@@ -11,7 +11,8 @@ public class Movement : MonoBehaviour
     [SerializeField] float springForce = 200f;
     [SerializeField] float thrustModifier = 10f;
     [SerializeField] float percentageForceOnSpring = 0.4f;
-    [SerializeField] float minimumDrawForLaunch = 10f;
+
+    [SerializeField] GameObject mesh;
     
     private Vector3 appliedForce;
 
@@ -32,20 +33,22 @@ public class Movement : MonoBehaviour
             rigidBody.velocity = Vector3.zero;
         rigidBody.useGravity = useGravity;
     }
-    public bool Launch(Vector2 dirVector, float drawPercentage)
+
+    public void SortFacing(Vector3 direction)
     {
-        float thrust = drawPercentage * thrustModifier;
-        if (drawPercentage > minimumDrawForLaunch)
-        {
-            rigidBody.AddForce(dirVector * thrust);
-            appliedForce = dirVector * thrust;
-            return true;
-        }
+        if (direction.x > 0)
+            mesh.transform.rotation = Quaternion.Euler(-90, 0, 90);
         else
         {
-            Debug.Log("Draw under minimum");
-            return false;
-        }        
+            mesh.transform.rotation = Quaternion.Euler(-90, 0, 270);
+        }
+
+    }
+    public void Launch(Vector2 dirVector, float drawPercentage)
+    {
+        float thrust = drawPercentage * thrustModifier;
+        rigidBody.AddForce(dirVector * thrust);
+        appliedForce = dirVector * thrust;
     }
     private void Spring()
     {
