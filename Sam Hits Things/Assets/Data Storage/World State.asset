@@ -14,3 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   floorLayer: 11
   wallLayer: 10
+  rooms:
+  - {fileID: 11400000, guid: 39e72ec4c29b28242b58d4672f8f20ab, type: 2}
+  - {fileID: 11400000, guid: 0e82ae2252d2b6b45b45ad1e109cbb96, type: 2}
+  - {fileID: 11400000, guid: 2198686f91974da479c896fa384e4c65, type: 2}
+  - {fileID: 11400000, guid: 5ea04517150b3544191ba165ba301c60, type: 2}
+  - {fileID: 11400000, guid: 7bd30205275b6b444ab1c1fb0b914903, type: 2}
+  - {fileID: 11400000, guid: 068e467a8287e0a4ba372c36c7f06d36, type: 2}
+  - {fileID: 11400000, guid: 1a1af17da8a59cd49b8699fc8f8ff0c1, type: 2}
+  - {fileID: 11400000, guid: e1396420ab7c0d642b0a365b57d35ba5, type: 2}
+  - {fileID: 11400000, guid: 69cbcc29e9ba5f04387d20872d08d138, type: 2}

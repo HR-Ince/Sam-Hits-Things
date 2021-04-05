@@ -1,17 +1,18 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using Cinemachine;
 using UnityEngine;
 
 public class BoundingBox : MonoBehaviour
 {
-    [SerializeField] PlayerRegister register;
+    private Collider box;
+    private Camera cam;
 
-    private void OnTriggerExit(Collider other)
+    private void Awake()
     {
-        if (other.gameObject.CompareTag("Player"))
-        {
-            register.PlayerOne.GetComponent<Movement>().Stop();
-            register.PlayerOne.transform.position = register.SpawnPoint;
-        }
+        cam = Camera.main;
+        box = GetComponent<Collider>();
+
+        float depth = cam.transform.position.z;
+        float height = depth * 2f * Mathf.Tan(cam.fieldOfView * Mathf.Deg2Rad / 2f);
+        
     }
 }

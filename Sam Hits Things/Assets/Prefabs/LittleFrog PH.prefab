@@ -67,12 +67,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2897369029536700506}
-  - component: {fileID: 2897369029536700504}
   - component: {fileID: 2897369029536700507}
   - component: {fileID: 2897369029536700487}
   - component: {fileID: 2897369029536700485}
   - component: {fileID: 2897369029536700505}
   - component: {fileID: 2897369029536700486}
+  - component: {fileID: 5015663422771928672}
   m_Layer: 8
   m_Name: LittleFrog PH
   m_TagString: Player
@@ -97,20 +97,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!136 &2897369029536700504
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2897369029536700508}
-  m_Material: {fileID: 13400000, guid: b8c956f1ff4c0dd44ac95f40acfc2796, type: 2}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  m_Radius: 0.5
-  m_Height: 1.16
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &2897369029536700507
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -149,13 +135,36 @@ MonoBehaviour:
   m_GameObject: {fileID: 2897369029536700508}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ed8d1897dbaded046a3be5fea2644d0d, type: 3}
+  m_Script: {fileID: 11500000, guid: d2c19d8ab3428164fbadce7c2f5b472e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  allowLaunchInAir: 0
-  targetMaximumExtension: 5
+  targetMaximumExtension: 7
   minimumDrawPercentage: 5
-  stats: {fileID: 11400000, guid: 472607d290585ee49b6634ef05e43393, type: 2}
+  onJump:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 5015663422771928672}
+        m_MethodName: ManageJump
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 11400000, guid: 35660778bcb8ae043adac50f3d718c87, type: 2}
+        m_MethodName: Invoke
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2897369029536700505
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -168,11 +177,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2edb4d5806acbd84eaf7b2c48ae410bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  allowLaunchInAir: 0
   wallJumpEnabled: 1
-  wallLayer: 10
-  springForce: 200
-  thrustModifier: 6
-  percentageForceOnSpring: 0.25
+  world: {fileID: 11400000, guid: cd1224e091b6b25478104541f9820751, type: 2}
+  thrustModifier: 8
+  percentageForceOnSpring: 0.5
   mesh: {fileID: 5068448714704003776}
 --- !u!114 &2897369029536700486
 MonoBehaviour:
@@ -187,6 +196,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   register: {fileID: 11400000, guid: 82cf4dab59a7c1b4899d9e4f607f8bc3, type: 2}
+--- !u!114 &5015663422771928672
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2897369029536700508}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9059d892639910e4abb1ab82adc7b788, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2897369030910267522
 GameObject:
   m_ObjectHideFlags: 0
@@ -387,6 +408,20 @@ MonoBehaviour:
     m_Mode: 0
     m_NumColorKeys: 4
     m_NumAlphaKeys: 3
+--- !u!136 &60590774
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5068448714704003776}
+  m_Material: {fileID: 13400000, guid: b8c956f1ff4c0dd44ac95f40acfc2796, type: 2}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.01
+  m_Height: 0.05
+  m_Direction: 2
+  m_Center: {x: 0, y: 0.002, z: 0.024}
 --- !u!95 &5375000600177370411
 Animator:
   serializedVersion: 3
