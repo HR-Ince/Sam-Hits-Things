@@ -1,11 +1,10 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(LineRenderer))]
 public class LineDrawer : MonoBehaviour
 {
     [SerializeField] float lineWidth = 1f;
-    [SerializeField] Gradient baseGradient;
-    [SerializeField] Gradient maxedGradient;
 
     private LineRenderer line;
 
@@ -15,26 +14,20 @@ public class LineDrawer : MonoBehaviour
         line.startWidth = lineWidth;
         line.endWidth = lineWidth;
         line.enabled = false;
-        line.positionCount = 4;
-        line.colorGradient = baseGradient;
+        line.positionCount = 2;
     }
-    public void SetFirstPoint(Vector3 pos)
-    {
-        line.SetPosition(0, pos);
-    }
-    public void SetLinePositions(Vector3 targetVector, float drawPercentage)
+    public void SetLinePositions(Vector3 playerPosition, Vector3 targetVector)
     {
         line.enabled = true;
-        line.SetPosition(3, targetVector);
-        line.SetPosition(2, Vector3.Lerp(line.GetPosition(0), line.GetPosition(3), 0.5f));
-        line.SetPosition(1, Vector3.Lerp(line.GetPosition(0), line.GetPosition(2), 0.5f));
 
-        if (drawPercentage > 99.00f)
-        {
-            line.colorGradient = maxedGradient;
-        }
-        else
-            line.colorGradient = baseGradient;
+        line.SetPosition(0, playerPosition);
+        line.SetPosition(1, targetVector);
+    }
+    public void SetLineColour(float drawPercentage)
+    {
+        Color lineColor = Color.Lerp(Color.black, Color.red, drawPercentage / 100);
+        line.startColor = lineColor;
+        line.endColor = lineColor;
     }
     public void DisableLine()
     {

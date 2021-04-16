@@ -16,9 +16,10 @@ public class PlayerMovement : MonoBehaviour
     
     public bool AllowLaunchInAir { get { return allowLaunchInAir; } }
 
-    private Vector3 appliedForce;
+    private bool hasJumped = false;
     private Vector3 directionOfTravel;
     private float drawPercentageApplied;
+    private Vector3 launchStart, launchEnd;
 
     private Rigidbody rigidBody;
 
@@ -26,10 +27,32 @@ public class PlayerMovement : MonoBehaviour
     {
         rigidBody = GetComponent<Rigidbody>();
     }
+    private void FixedUpdate()
+    {
+        if (!GetIsStopped())
+        {
+            hasJumped = true;
+        }
+        if (GetIsStopped() && hasJumped)
+        {
+            launchEnd = transform.position;
+            string distance = Vector3.Distance(launchStart, launchEnd).ToString("F2");
+            print("Distance travelled: " + distance);
+            hasJumped = false;
+        }
+            
+    }
     private void OnCollisionEnter(Collision collision)
     {
         if (wallJumpEnabled && collision.gameObject.layer == world.WallLayer)
             Wallspring();
+    }
+    public bool GetIsStopped()
+    {
+        if (rigidBody.velocity == Vector3.zero)
+            return true;
+        else
+            return false;
     }
     public void SetUseGravity(bool useGravity)
     {
@@ -37,29 +60,26 @@ public class PlayerMovement : MonoBehaviour
             rigidBody.velocity = Vector3.zero;
         rigidBody.useGravity = useGravity;
     }
-
     public void SortFacing(Vector3 direction)
     {
         if (direction.x > 0.00f)
-            mesh.transform.rotation = Quaternion.Euler(-90, 0, 90);
+            transform.rotation = Quaternion.Euler(0, 0, 0);
         else
-        {
-            mesh.transform.rotation = Quaternion.Euler(-90, 0, 270);
-        }
-
+            transform.rotation = Quaternion.Euler(0, 180, 0);
     }
     public void Launch(Vector2 direction, float drawPercentage)
     {
+        launchStart = transform.position;
         directionOfTravel = direction;
         drawPercentageApplied = drawPercentage;
         float thrust = drawPercentage * thrustModifier;
         rigidBody.AddForce(direction * thrust);
-        appliedForce = direction * thrust;
+        string launchAngle = Vector3.Angle(Vector3.right, direction).ToString("F2");
+        print("Launch angle: " + launchAngle);
     }
     private void Wallspring()
     {
         Vector3 springDir = new Vector3(-directionOfTravel.x, directionOfTravel.y);
-        print(springDir);
         Launch(springDir, drawPercentageApplied * percentageForceOnSpring);
         SortFacing(springDir);
     }

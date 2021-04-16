@@ -41,7 +41,6 @@ public class GameManager : MonoBehaviour
     }
     private void OnLevelLoaded(Scene scene, LoadSceneMode loadSceneMode)
     {
-        print("Scene: " + scene.buildIndex);
         worldState.LastLevelPlayed = scene.buildIndex;
         worldState.InGame = true;
     }
