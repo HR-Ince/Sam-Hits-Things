@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 public class Button : MonoBehaviour
 {
-    [SerializeField] PlayerRegister register;
+    [SerializeField] PlayerStateRegister register;
     [SerializeField] UnityEvent OnPushed;
     [SerializeField] UnityEvent OnLeft;
 

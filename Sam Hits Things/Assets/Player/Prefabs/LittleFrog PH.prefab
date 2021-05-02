@@ -1,64 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &2897369029368770012
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2897369029368770011}
-  - component: {fileID: 2897369029368770009}
-  - component: {fileID: 2897369029368770010}
-  m_Layer: 8
-  m_Name: GroundingBox
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2897369029368770011
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2897369029368770012}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.1, y: -0.65, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 2897369029536700506}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &2897369029368770009
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2897369029368770012}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.5, y: 0.1, z: 0.1}
-  m_Center: {x: -0.1, y: 0, z: 0}
---- !u!114 &2897369029368770010
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2897369029368770012}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a9c76ed8808449f479202679bcdf64be, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  slipForce: 4
-  world: {fileID: 11400000, guid: cd1224e091b6b25478104541f9820751, type: 2}
 --- !u!1 &2897369029536700508
 GameObject:
   m_ObjectHideFlags: 0
@@ -75,7 +16,8 @@ GameObject:
   - component: {fileID: 2897369029536700485}
   - component: {fileID: 5015663422771928672}
   - component: {fileID: 2897369029536700486}
-  - component: {fileID: 3155656421579947493}
+  - component: {fileID: 1867924262}
+  - component: {fileID: 1867924263}
   m_Layer: 8
   m_Name: LittleFrog PH
   m_TagString: Player
@@ -94,9 +36,9 @@ Transform:
   m_LocalPosition: {x: -8, y: 0.568, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 2897369029368770011}
   - {fileID: 2897369030910267521}
   - {fileID: 5556720574791153786}
+  - {fileID: 7167384389221298577}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -158,9 +100,9 @@ MonoBehaviour:
   allowLaunchInAir: 0
   wallJumpEnabled: 1
   world: {fileID: 11400000, guid: cd1224e091b6b25478104541f9820751, type: 2}
-  thrustModifier: 8
+  thrustModifier: 5.5
   percentageForceOnSpring: 0.5
-  mesh: {fileID: 5068448714704003776}
+  burdenedThrustPercentage: 0.6
 --- !u!114 &2897369029536700485
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -173,8 +115,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2c19d8ab3428164fbadce7c2f5b472e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetMaximumExtension: 7
-  minimumDrawPercentage: 5
+  targetMaximumExtension: 5
+  minimumDrawPercentage: 10
   onJump:
     m_PersistentCalls:
       m_Calls:
@@ -225,7 +167,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   register: {fileID: 11400000, guid: 82cf4dab59a7c1b4899d9e4f607f8bc3, type: 2}
---- !u!114 &3155656421579947493
+  OnPlayerDeath: {fileID: 11400000, guid: e578d8d1650794f438fe66efdd01383c, type: 2}
+--- !u!114 &1867924262
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -234,9 +177,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 2897369029536700508}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cd3ae9f04cbc4d049b92705ca74fcd69, type: 3}
+  m_Script: {fileID: 11500000, guid: e88e0cce77837104c9811f952248cfe1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1867924263
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2897369029536700508}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0b20d868d09d2e4db8113107e36ee31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  reach: 2
+  holdPos: {fileID: 7167384389221298577}
 --- !u!1 &2897369030910267522
 GameObject:
   m_ObjectHideFlags: 0
@@ -267,7 +224,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2897369029536700506}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!120 &2897369030910267535
 LineRenderer:
@@ -398,6 +355,36 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!1 &8413492595618363690
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7167384389221298577}
+  m_Layer: 8
+  m_Name: holdPos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7167384389221298577
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8413492595618363690}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.6, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 2897369029536700506}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &5375000600532131729
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -423,7 +410,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 1b2c95c89d2d32649a48e7c237ff1838,
         type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1b2c95c89d2d32649a48e7c237ff1838,
         type: 3}

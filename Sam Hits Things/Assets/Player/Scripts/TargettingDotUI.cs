@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class TargettingDotUI : MonoBehaviour
 {
     [SerializeField] PlayerSettings settings;
-    [SerializeField] PlayerRegister register;
+    [SerializeField] PlayerStateRegister register;
     [SerializeField] Image targettingDot;
     [SerializeField] TMP_Text launchStrengthText;
 

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class EnemyBehaviour : MonoBehaviour
 {
-    [SerializeField] PlayerRegister register;
+    [SerializeField] PlayerStateRegister register;
     [SerializeField] WorldStats stats;
 
     private bool isDead = false;

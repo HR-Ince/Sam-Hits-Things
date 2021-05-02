@@ -41,13 +41,16 @@ public class PointToPointMovement : MonoBehaviour
         if (!isManuallyActivated)
             MoveBetweenPoints();        
     }
-    public void Override(Vector3[] pointsPassed, bool isPowerDependant)
+    public void Override(bool isPowerDependant)
     {
-        currentPoints = pointsPassed;
         overrideOn = true;
-        currentTarget = currentPoints[0];
         currentPointIndex = 0;
         isManuallyActivated = isPowerDependant;
+    }
+    public void UpdateOverridePoints(Vector3[] pointsPassed)
+    {
+        currentPoints = pointsPassed;
+        currentTarget = currentPoints[currentPointIndex];
     }
     public void ResetAsOverride()
     {
@@ -59,7 +62,8 @@ public class PointToPointMovement : MonoBehaviour
                 resetPoints[j] = points[i].position;
             }
         }
-        Override(resetPoints, false);
+        UpdateOverridePoints(resetPoints);
+        Override(false);
     }
     public void TurnOverrideOff()
     {

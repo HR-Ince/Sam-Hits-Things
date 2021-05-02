@@ -11,48 +11,37 @@ public class PlayerMovement : MonoBehaviour
 
     [SerializeField] float thrustModifier = 10f;
     [SerializeField] float percentageForceOnSpring = 0.5f;
+    [SerializeField] float burdenedThrustPercentage = 0.6f;
 
-    [SerializeField] GameObject mesh;
-    
     public bool AllowLaunchInAir { get { return allowLaunchInAir; } }
 
-    private bool hasJumped = false;
     private Vector3 directionOfTravel;
     private float drawPercentageApplied;
-    private Vector3 launchStart, launchEnd;
 
     private Rigidbody rigidBody;
+    private PlayerStateManager state;
 
     private void Awake()
     {
         rigidBody = GetComponent<Rigidbody>();
-    }
-    private void FixedUpdate()
-    {
-        if (!GetIsStopped())
-        {
-            hasJumped = true;
-        }
-        if (GetIsStopped() && hasJumped)
-        {
-            launchEnd = transform.position;
-            string distance = Vector3.Distance(launchStart, launchEnd).ToString("F2");
-            print("Distance travelled: " + distance);
-            hasJumped = false;
-        }
-            
+        state = GetComponent<PlayerStateManager>();
+        if(state == null) { Debug.LogError("State manager missing from Player"); }
     }
     private void OnCollisionEnter(Collision collision)
     {
         if (wallJumpEnabled && collision.gameObject.layer == world.WallLayer)
             Wallspring();
     }
-    public bool GetIsStopped()
+    private void FixedUpdate()
     {
         if (rigidBody.velocity == Vector3.zero)
-            return true;
+        {
+            state.IsStopped = true;
+        }
         else
-            return false;
+        {
+            state.IsStopped = false;
+        }
     }
     public void SetUseGravity(bool useGravity)
     {
@@ -69,22 +58,17 @@ public class PlayerMovement : MonoBehaviour
     }
     public void Launch(Vector2 direction, float drawPercentage)
     {
-        launchStart = transform.position;
+        if (state.IsBurdened)
+            drawPercentage = drawPercentage * burdenedThrustPercentage;
         directionOfTravel = direction;
         drawPercentageApplied = drawPercentage;
         float thrust = drawPercentage * thrustModifier;
         rigidBody.AddForce(direction * thrust);
-        string launchAngle = Vector3.Angle(Vector3.right, direction).ToString("F2");
-        print("Launch angle: " + launchAngle);
     }
     private void Wallspring()
     {
         Vector3 springDir = new Vector3(-directionOfTravel.x, directionOfTravel.y);
         Launch(springDir, drawPercentageApplied * percentageForceOnSpring);
         SortFacing(springDir);
-    }
-    public void Stop()
-    {
-        rigidBody.velocity = Vector3.zero;
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ForegroundOcclusion : MonoBehaviour
 {
-    [SerializeField] PlayerRegister register;
+    [SerializeField] PlayerStateRegister register;
     [SerializeField] WorldState world;
 
     private Transform player;

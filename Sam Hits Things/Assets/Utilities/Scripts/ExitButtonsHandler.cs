@@ -10,7 +10,7 @@ public class ExitButtonsHandler : MonoBehaviour
 
     private void LoadNextLevel()
     {
-        gM.LoadNextLevel();
+        
     }
     public void LoadMenu()
     {
