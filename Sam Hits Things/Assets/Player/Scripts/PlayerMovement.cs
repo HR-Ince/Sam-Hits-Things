@@ -7,8 +7,8 @@ public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] bool allowLaunchInAir = true;
     [SerializeField] bool wallJumpEnabled = false;
-    [SerializeField] WorldState world;
-
+    
+    [SerializeField] float wallspringDirChangeThreshold = 0.6f;
     [SerializeField] float thrustModifier = 10f;
     [SerializeField] float percentageForceOnSpring = 0.5f;
     [SerializeField] float burdenedThrustPercentage = 0.6f;
@@ -29,19 +29,8 @@ public class PlayerMovement : MonoBehaviour
     }
     private void OnCollisionEnter(Collision collision)
     {
-        if (wallJumpEnabled && collision.gameObject.layer == world.WallLayer)
+        if (wallJumpEnabled && !state.GetIsGroundedNarrow())
             Wallspring();
-    }
-    private void FixedUpdate()
-    {
-        if (rigidBody.velocity == Vector3.zero)
-        {
-            state.IsStopped = true;
-        }
-        else
-        {
-            state.IsStopped = false;
-        }
     }
     public void SetUseGravity(bool useGravity)
     {
@@ -52,9 +41,13 @@ public class PlayerMovement : MonoBehaviour
     public void SortFacing(Vector3 direction)
     {
         if (direction.x > 0.00f)
+        {
             transform.rotation = Quaternion.Euler(0, 0, 0);
-        else
+        }
+        else if(direction.x < 0.00f)
+        {
             transform.rotation = Quaternion.Euler(0, 180, 0);
+        }
     }
     public void Launch(Vector2 direction, float drawPercentage)
     {
@@ -69,6 +62,7 @@ public class PlayerMovement : MonoBehaviour
     {
         Vector3 springDir = new Vector3(-directionOfTravel.x, directionOfTravel.y);
         Launch(springDir, drawPercentageApplied * percentageForceOnSpring);
-        SortFacing(springDir);
+        if(Mathf.Abs(directionOfTravel.x) > wallspringDirChangeThreshold)
+            SortFacing(springDir);
     }
 }

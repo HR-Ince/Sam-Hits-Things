@@ -6,13 +6,13 @@ using UnityEngine.Events;
 [RequireComponent(typeof(PlayerMovement))]
 public class LaunchTargeter : MonoBehaviour
 {
-    [SerializeField] float targetMaximumExtension = 10f, minimumDrawPercentage = 5f;
+    [SerializeField] float maxMagnitude = 10f, minimumDrawPercentage = 5f;
     [SerializeField] UnityEvent onJump;
 
     public Vector3 DirectionVector { get { return dirVector; } }
     public Vector3 TargetVector { get { return targetVector; } }
     public float DrawPercentage { get { return drawPercentage; } }
-    public float TargetMaxExtension { get { return targetMaximumExtension; } }
+    public float TargetMaxExtension { get { return maxMagnitude; } }
 
     private bool allowLaunchInAir;
     private bool pressAccepted;
@@ -23,18 +23,23 @@ public class LaunchTargeter : MonoBehaviour
     private Vector3 targetVector;
     private Vector3 pressedPosWorld;
 
+    private Camera cam;
     private PlayerInput input;
     private PlayerMovement player;
+    private PlayerStateManager state;
     private LineDrawer line;
 
     private void Awake()
     {
         player = GetComponent<PlayerMovement>();
+        cam = Camera.main;
 
         input = GetComponent<PlayerInput>();
-        if(input == null) { Debug.LogError("PlayerInput missing from PlayerLaunchHandler gameobject"); }
+        if(input == null) { Debug.LogError("PlayerInput missing from LaunchTargeter"); }
         line = GetComponentInChildren<LineDrawer>();
-        if(line == null) { Debug.LogError("LineDrawer missing from children of PlayerLaunchHandler gameobject"); }
+        if(line == null) { Debug.LogError("LineDrawer missing from children of LaunchTargeter"); }
+        state = GetComponent<PlayerStateManager>();
+        if(state == null) { Debug.LogError("State manager missing from LaunchTargeter"); }
 
         cameraDepth = -Camera.main.transform.position.z;
 
@@ -43,7 +48,7 @@ public class LaunchTargeter : MonoBehaviour
     }
     private void Update()
     {
-        if(!allowLaunchInAir && !player.GetIsStopped()) { return; }
+        if(!allowLaunchInAir && !state.IsGrounded) { return; }
         if (input.Pressed)
         {
             if (allowLaunchInAir)
@@ -51,15 +56,13 @@ public class LaunchTargeter : MonoBehaviour
             SetPressPos();
             pressAccepted = true;
         }
-        if (input.PressHeld && pressAccepted)
+        if (pressAccepted && input.PressHeld)
         {
-            Vector3 inputPosWorld = Camera.main.ScreenToWorldPoint(new Vector3(input.PressPos.x, input.PressPos.y, cameraDepth));
-            AdjustTargetting(inputPosWorld);
-            GetDragLength(inputPosWorld);
+            AdjustTargetting();
             player.SortFacing(dirVector);
             PassLineValues();
         }
-        if (input.PressReleased && pressAccepted)
+        if (pressAccepted && input.PressReleased)
         {
             if (allowLaunchInAir)
                 player.SetUseGravity(true);
@@ -73,6 +76,7 @@ public class LaunchTargeter : MonoBehaviour
             DisableLine();
             ResetValues();
         }
+
     }
     private void DisableLine()
     {
@@ -87,22 +91,18 @@ public class LaunchTargeter : MonoBehaviour
     }
     private void SetPressPos()
     {
-        pressedPosWorld = Camera.main.ScreenToWorldPoint(new Vector3(input.PressPos.x, input.PressPos.y, cameraDepth));
+        pressedPosWorld = cam.ScreenToWorldPoint(new Vector3(input.PressPos.x, input.PressPos.y, cameraDepth));
     }
-    private void AdjustTargetting(Vector3 inputPosWorld)
+    private void AdjustTargetting()
     {
-        Vector3 posDif = Vector3.ClampMagnitude(pressedPosWorld - inputPosWorld, targetMaximumExtension);
+        Vector3 inputPosWorld = cam.ScreenToWorldPoint(new Vector3(input.PressPos.x, input.PressPos.y, cameraDepth));
+        Vector3 posDif = Vector3.ClampMagnitude(pressedPosWorld - inputPosWorld, maxMagnitude);
         targetVector = target.transform.position + posDif;
-        dirVector = posDif / Vector3.Distance(target.transform.position, targetVector);
-
-        dirVector = new Vector3(dirVector.x, Mathf.Max(dirVector.y, 0.00f));
         targetVector = new Vector3(targetVector.x, Mathf.Max(target.transform.position.y, targetVector.y));
 
-    }
-    private void GetDragLength(Vector3 inputPosWorld)
-    {
-        float magnitiude = Vector3.Distance(pressedPosWorld, inputPosWorld);
-        drawPercentage = Mathf.Clamp(magnitiude / targetMaximumExtension * 100, 0, 100);
+        float difMagnitude = Mathf.Abs(Mathf.Clamp(Vector3.Distance(pressedPosWorld, inputPosWorld), 0, maxMagnitude));
+        dirVector = posDif / difMagnitude;
+        drawPercentage = Mathf.Clamp(difMagnitude / maxMagnitude * 100, 0, 100);
     }
     private void ResetValues()
     {

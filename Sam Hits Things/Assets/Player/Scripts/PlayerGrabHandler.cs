@@ -1,99 +1,136 @@
 ﻿using TMPro;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(PlayerInput))]
 public class PlayerGrabHandler : MonoBehaviour
 {
     [SerializeField] float reach;
-    [SerializeField] Transform holdPos;
-    [SerializeField] int interactableLayerNumber;
+    [SerializeField] Vector2 discardForce;
     [SerializeField] TMP_Text interactionText;
     [SerializeField] Vector3 interactionTextOffset;
+    [SerializeField] LayerMask interactableLayerMask;
+
+    Collider[] collidersInReach;
+    List<TMP_Text> labels = new List<TMP_Text>();
+
+    private GameObject heldObject;
 
     private Camera cam;
-    private Collider[] overlappingColliders;
-    private int layerMask;
-
+    private Canvas canvas;
     private PlayerInput input;
     private PlayerStateManager state;
 
     private void Awake()
     {
-        input = GetComponent<PlayerInput>();
+        FetchExternalReferences();
 
-        state = GetComponent<PlayerStateManager>();
-        if(state == null) { Debug.LogError("State manager missing from player"); }
-
+        labels.Add(interactionText);
+        interactionText.enabled = false;
+    }
+    private void FetchExternalReferences()
+    {
         cam = Camera.main;
-        layerMask = 1 << interactableLayerNumber;
+        input = GetComponentInParent<PlayerInput>();
+        state = GetComponentInParent<PlayerStateManager>();
+        if (state == null) { Debug.LogError("State manager missing from player"); }
+
+        canvas = FindObjectOfType<Canvas>();
+    }
+    private void LabelObjects(Collider[] colliders, String text)
+    {
+        if (labels.Count < colliders.Length)
+        {
+            TMP_Text TMP = Instantiate(interactionText, canvas.transform);
+            labels.Add(TMP);
+        }
+        else if(labels.Count > colliders.Length)
+        {
+            for (int i = labels.Count - 1; i >= collidersInReach.Length; i--)
+            {
+                labels[i].enabled = false;
+            }
+        }
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            labels[i].transform.position = cam.WorldToScreenPoint(colliders[i].transform.position + interactionTextOffset);
+            labels[i].text = text;
+            labels[i].enabled = true;
+        }
     }
     private void Update()
     {
-        overlappingColliders = Physics.OverlapSphere(transform.position, reach, layerMask);
-
-        if(state.IsStopped && overlappingColliders.Length > 0 && ! state.IsBurdened)
+        if (state.IsGrounded)
         {
-            foreach(Collider obj in overlappingColliders)
+            if (!state.IsBurdened)
             {
-                interactionText.enabled = true;
-                interactionText.text = "Grab";
-                interactionText.transform.position = Camera.main.WorldToScreenPoint(obj.transform.position + interactionTextOffset);
+                collidersInReach = Physics.OverlapBox(transform.position, Vector3.one * reach, Quaternion.identity, interactableLayerMask);
 
-                if (input.Pressed)
+                LabelObjects(collidersInReach, "Pick up");                        
+            }
+
+            if (input.Pressed)
+            {
+                if (Physics.Raycast(cam.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 100f, interactableLayerMask))
                 {
-                    Grab(obj.transform.gameObject);
+                    if (!state.IsBurdened)
+                    {
+                        foreach (Collider collider in collidersInReach)
+                            if (collider == hit.collider)
+                                Grab(hit.transform.gameObject);
+                    }
+                    else
+                    {
+                        if (hit.transform.gameObject == heldObject)
+                            ReleaseHeldObject();
+                    }
                 }
             }
         }
-        /*
-        if (Physics.Raycast(cam.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 100f))
+        else
         {
-            if (hit.transform.gameObject.CompareTag("Holdable"))
-            {
-                if (!state.IsBurdened)
-                {
-                    float dist = Vector3.Distance(transform.position, hit.transform.position);
-
-                    if (dist < reach)
-                    {
-                        interactionText.enabled = true;
-                        interactionText.text = "Grab";
-                        interactionText.transform.position = Camera.main.WorldToScreenPoint(hit.transform.position + interactionTextOffset);
-                        if (input.Pressed)
-                        {
-                            Grab(hit.transform.gameObject);
-                        }
-                    }
-                }
-                else
-                {
-                    interactionText.enabled = true;
-                    interactionText.text = "Release";
-                    interactionText.transform.position = Camera.main.WorldToScreenPoint(hit.transform.position + interactionTextOffset);
-                    if (input.Pressed)
-                        Release(hit.transform.gameObject);
-                }
-            }
+            int switchStart;
+            if (state.IsBurdened)
+                switchStart = 1;
             else
+                switchStart = 0;
+            for (int i = switchStart; i < labels.Count; i++)
             {
-                interactionText.enabled = false;
+                labels[i].enabled = false;
             }
-        }*/
+        }
+
+        if (state.IsBurdened)
+        {
+            heldObject.transform.position = transform.position;
+            interactionText.transform.position = cam.WorldToScreenPoint(heldObject.transform.position + interactionTextOffset);
+        }
     }
     private void Grab(GameObject obj)
     {
-        obj.transform.parent = transform;
-        Rigidbody objRB = obj.GetComponent<Rigidbody>();
-        objRB.isKinematic = true;
-        obj.transform.position = holdPos.position;
+        heldObject = obj;
+        heldObject.transform.parent = transform;
         state.SetIsBurdened(true);
+
+        for (int i = 1; i < labels.Count; i++)
+        {
+            labels[i].enabled = false;
+        }
+
+        if (interactionText.enabled == false)
+        {
+            interactionText.enabled = true;
+        }
+        
+        interactionText.text = "Discard";
     }
-    private void Release(GameObject obj)
+    private void ReleaseHeldObject()
     {
-        obj.transform.parent = null;
-        Rigidbody objRB = obj.GetComponent<Rigidbody>();
-        objRB.isKinematic = false;
-        objRB.AddForce(Vector3.left * 300);
+        print("Release");
+        heldObject.transform.parent = null;
+        heldObject.transform.position = transform.TransformPoint(Vector3.right * reach);
+        heldObject = null;
         state.SetIsBurdened(false);
+        interactionText.enabled = false;
     }
 }

@@ -5,11 +5,12 @@ using UnityEngine;
 [CreateAssetMenu]
 public class WorldState : ScriptableObject
 {
-    [SerializeField] private int floorLayer, wallLayer, foregroundLayer;
+    [SerializeField] private int floorLayer, wallLayer, foregroundLayer, interactableLayer;
 
     public int WallLayer { get { return wallLayer; } }
     public int FloorLayer { get { return floorLayer; } }
     public int ForegroundLayer { get { return foregroundLayer; } }
+    public int InteractableLayer { get { return interactableLayer; } }
 
     [Min(1)] int lastLevelPlayed;
     public int LastLevelPlayed { get { return lastLevelPlayed; } 

@@ -7,23 +7,20 @@ public class ExitDoorBehaviour : MonoBehaviour
 {
     [SerializeField] WorldState worldState;
     [SerializeField] GameEvent onExit;
+    [SerializeField] PlayerStateRegister register;
 
+    private PlayerStateManager playerState;
+
+    private void Awake()
+    {
+        playerState = register.PlayerOne.GetComponent<PlayerStateManager>();
+    }
     private void OnTriggerStay(Collider other)
     {
         if (worldState.InGame == false) { return; }
 
-        if(GetGrounded(other))
-            ExitState();        
-    }
-    private bool GetGrounded(Collider other)
-    {
-        GroundingCheck gC = other.GetComponentInChildren<GroundingCheck>();
-        if (gC == null) { print("No GC"); return false; }
-
-        if (gC.IsGrounded)
-            return true; 
-        else
-            return false;
+        if(playerState.IsGrounded)
+            ExitState();   
     }
     private void ExitState()
     {
