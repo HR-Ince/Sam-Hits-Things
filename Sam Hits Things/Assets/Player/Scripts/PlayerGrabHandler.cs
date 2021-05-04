@@ -9,10 +9,11 @@ public class PlayerGrabHandler : MonoBehaviour
     [SerializeField] Vector2 discardForce;
     [SerializeField] TMP_Text interactionText;
     [SerializeField] Vector3 interactionTextOffset;
-    [SerializeField] LayerMask interactableLayerMask;
+    [SerializeField] LayerMask interactableLayerMask, playerLayerMask;
 
     Collider[] collidersInReach;
     List<TMP_Text> labels = new List<TMP_Text>();
+    List<Collider> collectableObjects = new List<Collider>();
 
     private GameObject heldObject;
 
@@ -37,23 +38,42 @@ public class PlayerGrabHandler : MonoBehaviour
 
         canvas = FindObjectOfType<Canvas>();
     }
-    private void LabelObjects(Collider[] colliders, String text)
+    private void ManageCollectableObjects(Collider[] colliders)
     {
-        if (labels.Count < colliders.Length)
+        foreach(Collider collider in colliders)
+        {
+            Vector3 playerDirection = (transform.parent.position - collider.transform.position).normalized;
+            Physics.Raycast(collider.transform.position, playerDirection, out RaycastHit hit, reach);
+
+            Debug.DrawRay(collider.transform.position, playerDirection, Color.red, reach);
+
+            if (hit.transform == transform.parent && !collectableObjects.Contains(collider))
+            {
+                collectableObjects.Add(collider);
+            }
+            else if(hit.transform != transform.parent && collectableObjects.Contains(collider))
+            {
+                collectableObjects.Remove(collider);
+            }
+        }
+    }
+    private void LabelObjects(string text)
+    {
+        if (labels.Count < collectableObjects.Count)
         {
             TMP_Text TMP = Instantiate(interactionText, canvas.transform);
             labels.Add(TMP);
         }
-        else if(labels.Count > colliders.Length)
+        if(labels.Count > collectableObjects.Count)
         {
-            for (int i = labels.Count - 1; i >= collidersInReach.Length; i--)
+            for (int i = labels.Count - 1; i >= collectableObjects.Count; i--)
             {
                 labels[i].enabled = false;
             }
         }
-        for (int i = 0; i < colliders.Length; i++)
+        for (int i = 0; i < collectableObjects.Count; i++)
         {
-            labels[i].transform.position = cam.WorldToScreenPoint(colliders[i].transform.position + interactionTextOffset);
+            labels[i].transform.position = cam.WorldToScreenPoint(collectableObjects[i].transform.position + interactionTextOffset);
             labels[i].text = text;
             labels[i].enabled = true;
         }
@@ -66,7 +86,8 @@ public class PlayerGrabHandler : MonoBehaviour
             {
                 collidersInReach = Physics.OverlapBox(transform.position, Vector3.one * reach, Quaternion.identity, interactableLayerMask);
 
-                LabelObjects(collidersInReach, "Pick up");                        
+                ManageCollectableObjects(collidersInReach);
+                LabelObjects("Pick up");
             }
 
             if (input.Pressed)
@@ -75,9 +96,11 @@ public class PlayerGrabHandler : MonoBehaviour
                 {
                     if (!state.IsBurdened)
                     {
-                        foreach (Collider collider in collidersInReach)
+                        foreach (Collider collider in collectableObjects)
                             if (collider == hit.collider)
+                            {
                                 Grab(hit.transform.gameObject);
+                            }
                     }
                     else
                     {
@@ -110,6 +133,8 @@ public class PlayerGrabHandler : MonoBehaviour
     {
         heldObject = obj;
         heldObject.transform.parent = transform;
+        heldObject.transform.rotation = Quaternion.identity;
+        heldObject.GetComponent<Rigidbody>().freezeRotation = true;
         state.SetIsBurdened(true);
 
         for (int i = 1; i < labels.Count; i++)
@@ -129,6 +154,10 @@ public class PlayerGrabHandler : MonoBehaviour
         print("Release");
         heldObject.transform.parent = null;
         heldObject.transform.position = transform.TransformPoint(Vector3.right * reach);
+        Rigidbody heldObjectRB = heldObject.GetComponent<Rigidbody>();
+        heldObjectRB.freezeRotation = false;
+        heldObjectRB.constraints = RigidbodyConstraints.FreezeRotationX;
+        heldObjectRB.constraints = RigidbodyConstraints.FreezeRotationY;
         heldObject = null;
         state.SetIsBurdened(false);
         interactionText.enabled = false;

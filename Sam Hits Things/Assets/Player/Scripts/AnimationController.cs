@@ -31,13 +31,11 @@ public class AnimationController : MonoBehaviour
             SetCrouching(false);
             wasAcceptedPress = false;
         }
-            
-
         if(rB.velocity.y < 0)
         {
             SetJumping(false);
             SetFalling(true);
-        }            
+        }
 
         if (anim.GetBool("isFalling") && rB.velocity.y == 0)
             SetFalling(false);
