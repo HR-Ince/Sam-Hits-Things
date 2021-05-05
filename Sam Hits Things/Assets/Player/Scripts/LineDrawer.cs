@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 
 [RequireComponent(typeof(LineRenderer))]
 public class LineDrawer : MonoBehaviour
@@ -7,21 +6,36 @@ public class LineDrawer : MonoBehaviour
     [SerializeField] float lineWidth = 1f;
 
     private LineRenderer line;
+    private ManualLauncher launcher;
 
     private void Awake()
     {
+        FetchExternalVariables();
+        SetLineVariables();
+    }
+    private void FetchExternalVariables()
+    {
         line = GetComponent<LineRenderer>();
+        launcher = GetComponentInParent<ManualLauncher>();
+        if (launcher == null) { Debug.LogError("ManualLauncher missing from parent of LineDrawer"); }
+    }
+    private void SetLineVariables()
+    {
         line.startWidth = lineWidth;
         line.endWidth = lineWidth;
         line.enabled = false;
         line.positionCount = 2;
     }
-    public void SetLinePositions(Vector3 playerPosition, Vector3 targetVector)
-    {
-        line.enabled = true;
 
-        line.SetPosition(0, playerPosition);
-        line.SetPosition(1, targetVector);
+    public void StartLine(Vector3 objectPosition)
+    {
+        line.SetPosition(0, objectPosition);
+        line.enabled = true;
+    }
+    public void ManageLine()
+    {
+        line.SetPosition(1, launcher.TargetVector);
+        SetLineColour(launcher.DrawPercentage);
     }
     public void SetLineColour(float drawPercentage)
     {

@@ -5,64 +5,42 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField] bool allowLaunchInAir = true;
     [SerializeField] bool wallJumpEnabled = false;
-    
-    [SerializeField] float wallspringDirChangeThreshold = 0.6f;
-    [SerializeField] float thrustModifier = 10f;
-    [SerializeField] float percentageForceOnSpring = 0.5f;
-    [SerializeField] float burdenedThrustPercentage = 0.6f;
-
-    public bool AllowLaunchInAir { get { return allowLaunchInAir; } }
+    [SerializeField] float forceOnSpring = 0.5f;
 
     private Vector3 directionOfTravel;
     private float drawPercentageApplied;
 
     private Rigidbody rigidBody;
-    private PlayerStateManager state;
+    private ManualLauncher launcher;
+    private PlayerController state;
 
     private void Awake()
     {
+        FetchExternalVariables();
+    }
+    private void FetchExternalVariables()
+    {
         rigidBody = GetComponent<Rigidbody>();
-        state = GetComponent<PlayerStateManager>();
-        if(state == null) { Debug.LogError("State manager missing from Player"); }
+        state = GetComponent<PlayerController>();
+        if (state == null) { Debug.LogError("State manager missing from Player"); }
+        launcher = GetComponent<ManualLauncher>();
+        if (launcher == null) { Debug.LogError("ManualLanucher missing from Player"); }
     }
     private void OnCollisionEnter(Collision collision)
     {
         if (wallJumpEnabled && !state.GetIsGroundedNarrow())
             Wallspring();
     }
-    public void SetUseGravity(bool useGravity)
-    {
-        if(useGravity == false)
-            rigidBody.velocity = Vector3.zero;
-        rigidBody.useGravity = useGravity;
-    }
-    public void SortFacing(Vector3 direction)
-    {
-        if (direction.x > 0.00f)
-        {
-            transform.rotation = Quaternion.Euler(0, 0, 0);
-        }
-        else if(direction.x < 0.00f)
-        {
-            transform.rotation = Quaternion.Euler(0, 180, 0);
-        }
-    }
-    public void Launch(Vector2 direction, float drawPercentage)
-    {
-        if (state.IsBurdened)
-            drawPercentage = drawPercentage * burdenedThrustPercentage;
-        directionOfTravel = direction;
-        drawPercentageApplied = drawPercentage;
-        float thrust = drawPercentage * thrustModifier;
-        rigidBody.AddForce(direction * thrust);
+    public void SetLaunchVariables()
+    {        
+        directionOfTravel = launcher.DirectionVector;
+        drawPercentageApplied = launcher.DrawPercentage;
     }
     private void Wallspring()
     {
         Vector3 springDir = new Vector3(-directionOfTravel.x, directionOfTravel.y);
-        Launch(springDir, drawPercentageApplied * percentageForceOnSpring);
-        if(Mathf.Abs(directionOfTravel.x) > wallspringDirChangeThreshold)
-            SortFacing(springDir);
+        float thrust = drawPercentageApplied * forceOnSpring;
+        rigidBody.AddForce(springDir * thrust);
     }
 }

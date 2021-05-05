@@ -82,7 +82,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04f1ce237d894284192770c3ccc6a399, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  worldState: {fileID: 11400000, guid: cd1224e091b6b25478104541f9820751, type: 2}
 --- !u!114 &2897369029536700505
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -95,13 +94,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2edb4d5806acbd84eaf7b2c48ae410bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  allowLaunchInAir: 0
   wallJumpEnabled: 1
   wallspringDirChangeThreshold: 0.6
-  thrustModifier: 5.5
   percentageForceOnSpring: 0.5
-  burdenedThrustPercentage: 0.6
-  world: {fileID: 11400000, guid: cd1224e091b6b25478104541f9820751, type: 2}
 --- !u!114 &2897369029536700485
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -111,36 +106,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 2897369029536700508}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d2c19d8ab3428164fbadce7c2f5b472e, type: 3}
+  m_Script: {fileID: 11500000, guid: adfbcd4753a66e3469e9f6e6294e89ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxMagnitude: 5
-  minimumDrawPercentage: 10
-  onJump:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 5015663422771928672}
-        m_MethodName: ManageJump
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 11400000, guid: 35660778bcb8ae043adac50f3d718c87, type: 2}
-        m_MethodName: Invoke
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+  allowPlayerLaunchInAir: 0
+  thrustModifier: 1
+  maxMagnitude: 10
+  minimumDrawPercentage: 5
 --- !u!114 &5015663422771928672
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -162,13 +134,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 2897369029536700508}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9abd78314ef6410438117bf443ffae12, type: 3}
+  m_Script: {fileID: 11500000, guid: 61c7e12a6751cd64097a6b90660502f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   register: {fileID: 11400000, guid: 82cf4dab59a7c1b4899d9e4f607f8bc3, type: 2}
   OnPlayerDeath: {fileID: 11400000, guid: e578d8d1650794f438fe66efdd01383c, type: 2}
-  isBurdened: 0
-  isGrounded: 1
+  onJump: {fileID: 11400000, guid: 35660778bcb8ae043adac50f3d718c87, type: 2}
+  playerLayerMask:
+    serializedVersion: 2
+    m_Bits: 256
 --- !u!114 &1867924262
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -403,7 +377,12 @@ MonoBehaviour:
   discardForce: {x: 200, y: 5}
   interactionText: {fileID: 0}
   interactionTextOffset: {x: 0.5, y: 1, z: 0}
-  world: {fileID: 11400000, guid: cd1224e091b6b25478104541f9820751, type: 2}
+  interactableLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  playerLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!1001 &5375000600532131729
 PrefabInstance:
   m_ObjectHideFlags: 0

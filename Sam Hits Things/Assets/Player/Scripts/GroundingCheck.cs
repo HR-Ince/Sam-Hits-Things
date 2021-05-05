@@ -7,11 +7,11 @@ public class GroundingCheck : MonoBehaviour
     [SerializeField] float slipForce;
     [SerializeField] WorldState world;
 
-    private PlayerStateManager state;
+    private PlayerController state;
 
     private void Awake()
     {
-        state = GetComponentInParent<PlayerStateManager>();
+        state = GetComponentInParent<PlayerController>();
         if(state == null) { Debug.LogError("State Manager missing from Player"); }
     }
     private void OnTriggerEnter(Collider other)

@@ -11,16 +11,20 @@ public class PlayerGrabHandler : MonoBehaviour
     [SerializeField] Vector3 interactionTextOffset;
     [SerializeField] LayerMask interactableLayerMask, playerLayerMask;
 
+    public bool IsBurdened { get { return isBurdened; } }
+    public GameObject HeldObject { get { return heldObject; } }
+
     Collider[] collidersInReach;
     List<TMP_Text> labels = new List<TMP_Text>();
     List<Collider> collectableObjects = new List<Collider>();
 
+    private bool isBurdened;
     private GameObject heldObject;
 
     private Camera cam;
     private Canvas canvas;
     private PlayerInput input;
-    private PlayerStateManager state;
+    private PlayerController state;
 
     private void Awake()
     {
@@ -33,7 +37,7 @@ public class PlayerGrabHandler : MonoBehaviour
     {
         cam = Camera.main;
         input = GetComponentInParent<PlayerInput>();
-        state = GetComponentInParent<PlayerStateManager>();
+        state = GetComponentInParent<PlayerController>();
         if (state == null) { Debug.LogError("State manager missing from player"); }
 
         canvas = FindObjectOfType<Canvas>();
@@ -45,8 +49,6 @@ public class PlayerGrabHandler : MonoBehaviour
             Vector3 playerDirection = (transform.parent.position - collider.transform.position).normalized;
             Physics.Raycast(collider.transform.position, playerDirection, out RaycastHit hit, reach);
 
-            Debug.DrawRay(collider.transform.position, playerDirection, Color.red, reach);
-
             if (hit.transform == transform.parent && !collectableObjects.Contains(collider))
             {
                 collectableObjects.Add(collider);
@@ -54,6 +56,33 @@ public class PlayerGrabHandler : MonoBehaviour
             else if(hit.transform != transform.parent && collectableObjects.Contains(collider))
             {
                 collectableObjects.Remove(collider);
+            }
+        }
+
+        if(collectableObjects.Count <= 0) { return; }
+        
+        if (colliders.Length <= 0)
+        {
+            collectableObjects.Clear();
+            return;
+        }
+            
+        
+        for(int i = 0; i < collectableObjects.Count; i++)
+        {
+            bool contains = false;
+            for (int j = 0; j < colliders.Length; j++)
+            {
+                if (collectableObjects[i] == colliders[j])
+                {
+                    contains = true;
+                    break;
+                }                    
+            }
+
+            if (!contains)
+            {
+                collectableObjects.Remove(collectableObjects[i]);
             }
         }
     }
@@ -80,21 +109,35 @@ public class PlayerGrabHandler : MonoBehaviour
     }
     private void Update()
     {
+        if (heldObject != null)
+            isBurdened = true;
+        else
+        {
+            isBurdened = false;
+        }
+
         if (state.IsGrounded)
         {
-            if (!state.IsBurdened)
+            if (!isBurdened)
             {
                 collidersInReach = Physics.OverlapBox(transform.position, Vector3.one * reach, Quaternion.identity, interactableLayerMask);
 
                 ManageCollectableObjects(collidersInReach);
                 LabelObjects("Pick up");
             }
+            else
+            {
+                for (int i = 0; i < labels.Count; i++)
+                {
+                    labels[i].enabled = false;
+                }
+            }
 
             if (input.Pressed)
             {
                 if (Physics.Raycast(cam.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 100f, interactableLayerMask))
                 {
-                    if (!state.IsBurdened)
+                    if (!isBurdened)
                     {
                         foreach (Collider collider in collectableObjects)
                             if (collider == hit.collider)
@@ -102,64 +145,28 @@ public class PlayerGrabHandler : MonoBehaviour
                                 Grab(hit.transform.gameObject);
                             }
                     }
-                    else
-                    {
-                        if (hit.transform.gameObject == heldObject)
-                            ReleaseHeldObject();
-                    }
                 }
             }
         }
         else
         {
-            int switchStart;
-            if (state.IsBurdened)
-                switchStart = 1;
-            else
-                switchStart = 0;
-            for (int i = switchStart; i < labels.Count; i++)
+            for (int i = 0; i < labels.Count; i++)
             {
                 labels[i].enabled = false;
             }
-        }
-
-        if (state.IsBurdened)
-        {
-            heldObject.transform.position = transform.position;
-            interactionText.transform.position = cam.WorldToScreenPoint(heldObject.transform.position + interactionTextOffset);
         }
     }
     private void Grab(GameObject obj)
     {
         heldObject = obj;
-        heldObject.transform.parent = transform;
+        heldObject.transform.position = transform.position;
         heldObject.transform.rotation = Quaternion.identity;
-        heldObject.GetComponent<Rigidbody>().freezeRotation = true;
-        state.SetIsBurdened(true);
-
-        for (int i = 1; i < labels.Count; i++)
-        {
-            labels[i].enabled = false;
-        }
-
-        if (interactionText.enabled == false)
-        {
-            interactionText.enabled = true;
-        }
-        
-        interactionText.text = "Discard";
+        heldObject.GetComponent<Rigidbody>().isKinematic = true;
     }
-    private void ReleaseHeldObject()
+    public void ReleaseHeldObject()
     {
-        print("Release");
-        heldObject.transform.parent = null;
-        heldObject.transform.position = transform.TransformPoint(Vector3.right * reach);
-        Rigidbody heldObjectRB = heldObject.GetComponent<Rigidbody>();
-        heldObjectRB.freezeRotation = false;
-        heldObjectRB.constraints = RigidbodyConstraints.FreezeRotationX;
-        heldObjectRB.constraints = RigidbodyConstraints.FreezeRotationY;
+        heldObject.GetComponent<Rigidbody>().isKinematic = false;
         heldObject = null;
-        state.SetIsBurdened(false);
         interactionText.enabled = false;
     }
 }

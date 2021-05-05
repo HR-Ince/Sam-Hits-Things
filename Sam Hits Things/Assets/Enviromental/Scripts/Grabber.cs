@@ -47,9 +47,9 @@ public class Grabber : MonoBehaviour
         {
             if(heldObject.transform.parent != null)
             {
-                if(heldObject.transform.parent.TryGetComponent(out PlayerStateManager playerState))
+                if(heldObject.transform.parent.TryGetComponent(out PlayerGrabHandler player))
                 {
-                    playerState.SetIsBurdened(false);
+                    player.ReleaseHeldObject();
                 }
             }
             heldObject.transform.parent = transform;

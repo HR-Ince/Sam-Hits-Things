@@ -9,11 +9,11 @@ public class TargettingDotUI : MonoBehaviour
     [SerializeField] Image targettingDot;
     [SerializeField] TMP_Text launchStrengthText;
 
-    private LaunchTargeter targeter;
+    private ManualLauncher targeter;
     
     private void Awake()
     {
-        targeter = GetComponent<LaunchTargeter>();
+        targeter = GetComponent<ManualLauncher>();
         targettingDot.color = settings.TargettingDotColor;
         targettingDot.enabled = false;
     }

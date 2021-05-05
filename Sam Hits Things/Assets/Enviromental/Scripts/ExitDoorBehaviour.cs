@@ -9,11 +9,11 @@ public class ExitDoorBehaviour : MonoBehaviour
     [SerializeField] GameEvent onExit;
     [SerializeField] PlayerStateRegister register;
 
-    private PlayerStateManager playerState;
+    private PlayerController playerState;
 
     private void Awake()
     {
-        playerState = register.PlayerOne.GetComponent<PlayerStateManager>();
+        playerState = register.PlayerOne.GetComponent<PlayerController>();
     }
     private void OnTriggerStay(Collider other)
     {

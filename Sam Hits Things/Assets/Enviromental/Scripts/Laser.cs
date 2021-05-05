@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Laser : MonoBehaviour
 {
@@ -26,23 +24,20 @@ public class Laser : MonoBehaviour
             direction = Vector3.right;
         else if (beamDirection == Direction.up)
             direction = Vector3.up;
+
+        line.SetPosition(1, direction * 5f);
     }
     void Update()
     {
-        transform.LookAt(Camera.main.transform.position);
-        if(Physics.Raycast(transform.position, direction, out RaycastHit hit, Mathf.Infinity))
-        {            
-            UpdateLineRenderer(hit.point - transform.position);
-            
-            if(hit.transform.TryGetComponent(out IPerishable comp))
+        Debug.DrawRay(transform.position, direction, Color.red, 100f);
+        if(Physics.Raycast(transform.position, direction, out RaycastHit hit, 100f))
+        {
+            line.SetPosition(1, direction * hit.distance);
+
+            if (hit.transform.TryGetComponent(out IPerishable comp))
             {
                 comp.BroadcastDeath();
             }
         }
-    }
-
-    void UpdateLineRenderer(Vector3 hitPoint)
-    {
-        line.SetPosition(1, hitPoint);
     }
 }

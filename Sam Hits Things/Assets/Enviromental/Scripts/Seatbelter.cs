@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class Seatbelter : MonoBehaviour
 {
-    private void OnTriggerEnter(Collider other)
+    private void OnCollisionEnter(Collision collision)
     {
-        other.gameObject.transform.parent = transform.parent;
+        collision.gameObject.transform.parent = transform;
     }
-    private void OnTriggerExit(Collider other)
+    private void OnCollisionExit(Collision collision)
     {
-        other.gameObject.transform.parent = null;
+        collision.gameObject.transform.parent = null;
     }
 }
