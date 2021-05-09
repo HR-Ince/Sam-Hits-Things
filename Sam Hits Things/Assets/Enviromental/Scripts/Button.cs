@@ -6,49 +6,68 @@ using UnityEngine.Events;
 public class Button : MonoBehaviour
 {
     [SerializeField] float requiredMass;
+    [SerializeField] float turnOffDelay;
     [SerializeField] PlayerStateRegister register;
     [SerializeField] UnityEvent OnPushed;
     [SerializeField] UnityEvent OnLeft;
 
+    private bool buttonLeft;
+    private float timeLeft;
     private float massOnButton;
     private List<Rigidbody> bodiesOnButton = new List<Rigidbody>();
 
-    private void OnTriggerStay(Collider other)
+    private void OnTriggerEnter(Collider other)
     {
         if (other.transform.TryGetComponent(out Rigidbody rigidbody))
         {
-            if (GetStopped(rigidbody) && !bodiesOnButton.Contains(rigidbody))
+            if (!bodiesOnButton.Contains(rigidbody))
             {
-                massOnButton += rigidbody.mass;
                 bodiesOnButton.Add(rigidbody);
+                GetMassOnButton();
             }
         }
+
         print("Mass: " + massOnButton);
-        if(massOnButton >= requiredMass)
+        if (massOnButton >= requiredMass)
+        {
             if (OnPushed != null)
                 OnPushed.Invoke();
+        }
+            
     }
 
     private void OnTriggerExit(Collider other)
     {
         if (other.transform.TryGetComponent(out Rigidbody rigidbody))
         {
-            massOnButton -= rigidbody.mass;
             bodiesOnButton.Remove(rigidbody);
+            GetMassOnButton();
         }
 
-        if(massOnButton < requiredMass)
+        if (massOnButton < requiredMass)
+        {
+            buttonLeft = true;
+            timeLeft = Time.time;
+        }
+            
+    }
+    private void Update()
+    {
+        if(buttonLeft && Time.time - timeLeft >= turnOffDelay)
+        {
+            print("Exit");
             if (OnLeft != null)
                 OnLeft.Invoke();
+            buttonLeft = false;
+        }
     }
-    private bool GetStopped(Rigidbody other)
+    private void GetMassOnButton()
     {
-        Rigidbody rb = other.GetComponent<Rigidbody>();
-        if (rb == null) { print("No rigidbody in child of " + other.name + " on button"); return false; }
+        massOnButton = 0;
 
-        if (rb.velocity == Vector3.zero)
-            return true;
-        else
-            return false;
+        foreach(Rigidbody rigidbody in bodiesOnButton)
+        {
+            massOnButton += rigidbody.mass;
+        }
     }
 }

@@ -89,7 +89,7 @@ public class Grabber : MonoBehaviour
         Vector3 startingPosY = new Vector3(heldObject.transform.position.x, baseYPos);
         Vector3[] pointsForCollection = new Vector3[] { heldObjX, heldObjCollectableY, startingPosY };
         print("Passed pos: " + pointsForCollection[1].x);
-        pointToPoint.UpdateOverridePoints(pointsForCollection);
+        pointToPoint.OverridePoints(pointsForCollection);
     }
     private void CollectHeldObject()
     {

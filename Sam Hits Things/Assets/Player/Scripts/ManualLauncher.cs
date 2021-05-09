@@ -12,7 +12,7 @@ public class ManualLauncher : MonoBehaviour
     public Vector3 DirectionVector { get { return dirVector; } }
     public Vector3 TargetVector { get { return targetVector; } }
     public float DrawPercentage { get { return drawPercentage; } }
-    public float TargetMaxExtension { get { return maxMagnitude; } }
+    public float ThrustModifier { get { return thrustModifier; } }
 
     private float cameraDepth;
     private float drawPercentage;

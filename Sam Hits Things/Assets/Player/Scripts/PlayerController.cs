@@ -14,7 +14,6 @@ public class PlayerController : MonoBehaviour, IPerishable
 
     private bool isBurdened = false;
     private bool isGrounded = true;
-    private GameObject heldObject;
     private Vector3 colliderHalfExtents;
 
     private BoxCollider _collider;
@@ -22,6 +21,7 @@ public class PlayerController : MonoBehaviour, IPerishable
     private ManualLauncher launcher;
     private PlayerGrabHandler grabHandler;
     private PlayerInput input;
+    private Rigidbody _rigidbody;
 
     private void Awake()
     {
@@ -38,6 +38,8 @@ public class PlayerController : MonoBehaviour, IPerishable
         if (_collider == null) { Debug.LogError("Collider missing from player"); }
         launcher = GetComponent<ManualLauncher>();
         if (launcher == null) { Debug.LogError("Launcher missing from player"); }
+        _rigidbody = GetComponent<Rigidbody>();
+        if(_rigidbody == null) { Debug.LogError("Rigidbody missing from player"); }
 
         line = GetComponentInChildren<LineDrawer>();
         if (line == null) { Debug.LogError("LineDrawer missing from children of player"); }
@@ -78,7 +80,7 @@ public class PlayerController : MonoBehaviour, IPerishable
             if (input.PressHeld)
             {
                 launcher.AdjustTargetting(input.PressPos);
-                line.ManageLine();
+                line.ManageTrajectoryLine(_rigidbody.mass);
                 SortFacing(launcher.DirectionVector);
             }
 

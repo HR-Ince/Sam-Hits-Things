@@ -4,18 +4,24 @@ using UnityEngine;
 
 public class PointToPointMovement : MonoBehaviour
 {
-    [SerializeField] bool isManuallyActivated;
-    [SerializeField] bool doesRepeatPathAutomatically;
+    private enum SwitchType { toggle, held, defaulting, deactivating }
+    private enum PathType { Looping, SinglePath, SinglePoint }
+
+    [SerializeField] SwitchType switchType;
+    [SerializeField] PathType pathType;
     [SerializeField] Transform[] points;
     [SerializeField] float speed = 6;
     [SerializeField] float movementDelay = 2;
 
-    private bool overrideOn;
-    private bool manualCache;
-    private Vector3[] currentPoints;
+    private bool overrideOn = false;
+    private bool pathReversed = false;
+    private bool powerToggleOn = false;
+    private bool endReached = false;
     private float startTime;
     private float tolerance;
     private int currentPointIndex;
+    private PathType pathCache;
+    private Vector3[] currentPoints;
     private Vector3 currentTarget;
 
     private void Start()
@@ -28,58 +34,82 @@ public class PointToPointMovement : MonoBehaviour
 
         if (currentPoints.Length > 0)
         {
-            currentTarget = currentPoints[0];
             currentPointIndex = 0;
+            currentTarget = currentPoints[currentPointIndex];
         }
         
         tolerance = speed * Time.deltaTime;
-        manualCache = isManuallyActivated;
+        pathCache = pathType;
+        if (switchType == SwitchType.deactivating)
+            powerToggleOn = true;
+        else
+            powerToggleOn = false;
     }
-
-    private void Update()
+    private void FixedUpdate()
     {
-        if (!isManuallyActivated)
+        if (powerToggleOn && !endReached)
             MoveBetweenPoints();        
     }
     public void Override(bool isPowerDependant)
     {
         overrideOn = true;
         currentPointIndex = 0;
-        isManuallyActivated = isPowerDependant;
+        pathType = PathType.Looping;
     }
-    public void UpdateOverridePoints(Vector3[] pointsPassed)
+    public void OverridePoints(Vector3[] pointsPassed)
     {
         currentPoints = pointsPassed;
         currentTarget = currentPoints[currentPointIndex];
     }
-    public void ResetAsOverride()
+    private void EndOverride()
     {
-        Vector3[] resetPoints = new Vector3[points.Length];
-        for (int i = points.Length - 1; i >= 0; i--)
-        {
-            for(int j = 0; j < points.Length; j++)
-            {
-                resetPoints[j] = points[i].position;
-            }
-        }
-        UpdateOverridePoints(resetPoints);
-        Override(false);
-    }
-    public void TurnOverrideOff()
-    {
-        for(int i = 0; i < points.Length; i++)
+        currentPoints = new Vector3[points.Length];
+        for (int i = 0; i < points.Length; i++)
         {
             currentPoints[i] = points[i].position;
         }
+
+        currentPointIndex = 0;
+        pathType = pathCache;
         overrideOn = false;
-        isManuallyActivated = manualCache;
     }
-    public void ManualActivation()
+    public void ManualInteraction()
     {
-        if (!isManuallyActivated) { return; }
-        if(startTime == 0)
+        if (startTime == 0)
             startTime = Time.time;
-        MoveBetweenPoints();
+
+        if (switchType == SwitchType.deactivating)
+        {
+            powerToggleOn = false;
+            return;
+        }
+        else
+        {
+            powerToggleOn = true;
+            if (switchType == SwitchType.defaulting && pathReversed)
+            {
+                ReversePath();
+                UpdateTarget();
+            }
+        }
+    }
+    public void OnPowerOff()
+    {
+        if(switchType == SwitchType.defaulting || switchType == SwitchType.deactivating)
+        {
+            powerToggleOn = true;
+
+            if(switchType == SwitchType.defaulting && !pathReversed)
+            {
+                ReversePath();
+            }
+        }
+        else if(switchType == SwitchType.held)
+        {
+            powerToggleOn = false;
+        }
+
+        endReached = false;
     }
     private void MoveBetweenPoints()
     {
@@ -94,7 +124,6 @@ public class PointToPointMovement : MonoBehaviour
             UpdateTarget();
         }
     }
-
     private void Move()
     {
         if(Time.time - startTime < movementDelay) { return; }
@@ -107,23 +136,42 @@ public class PointToPointMovement : MonoBehaviour
     }
     public void UpdateTarget()
     {
-        if(currentPointIndex < currentPoints.Length - 1)
+        if(!pathReversed && currentPointIndex != currentPoints.Length - 1 || 
+            pathReversed && currentPointIndex != 0)
         {
-            currentPointIndex++;
+            UpdatePointIndex();
         }
-        else if(currentPointIndex == currentPoints.Length - 1 && overrideOn)
+        else if(!pathReversed && currentPointIndex == currentPoints.Length - 1 ||
+            pathReversed && currentPointIndex == 0)
         {
-            TurnOverrideOff();
+            ReversePath();
+            UpdatePointIndex();
+            if (pathType == PathType.SinglePath)
+            {
+                powerToggleOn = false;
+            }
+
+            if(pathReversed && overrideOn)
+            {
+                EndOverride();
+            }
         }
-        else if(doesRepeatPathAutomatically)
+        if(pathType == PathType.SinglePoint)
         {
-            currentPointIndex = 0;
+            powerToggleOn = false;
+            endReached = true;
         }
-        else
-        {
-            return;
-        }
+
         startTime = 0;
         currentTarget = currentPoints[currentPointIndex];
+    }
+    private void UpdatePointIndex()
+    {
+        if (!pathReversed) { currentPointIndex++; }
+        else { currentPointIndex--; }
+    }
+    private void ReversePath()
+    {
+        pathReversed = !pathReversed;
     }
 }
