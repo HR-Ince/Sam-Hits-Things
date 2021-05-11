@@ -13,7 +13,7 @@ public class PlayerMovement : MonoBehaviour
 
     private Rigidbody rigidBody;
     private ManualLauncher launcher;
-    private PlayerController state;
+    private OriballPlayerController controller;
 
     private void Awake()
     {
@@ -22,14 +22,14 @@ public class PlayerMovement : MonoBehaviour
     private void FetchExternalVariables()
     {
         rigidBody = GetComponent<Rigidbody>();
-        state = GetComponent<PlayerController>();
-        if (state == null) { Debug.LogError("State manager missing from Player"); }
+        controller = GetComponent<OriballPlayerController>();
+        if (controller == null) { Debug.LogError("PlayerController missing from Player"); }
         launcher = GetComponent<ManualLauncher>();
         if (launcher == null) { Debug.LogError("ManualLanucher missing from Player"); }
     }
     private void OnCollisionEnter(Collision collision)
     {
-        if (wallJumpEnabled && !state.GetIsGroundedNarrow())
+        if (wallJumpEnabled && !controller.GetIsGroundedNarrow())
             Wallspring();
     }
     public void SetLaunchVariables()

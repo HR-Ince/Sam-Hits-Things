@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Laser beam
-  m_Shader: {fileID: -6465566751694194690, guid: 1caefbc02521e60448d01bedd2f9e197,
+  m_Name: Laser Beam
+  m_Shader: {fileID: -6465566751694194690, guid: fb2b7b2a77b6a464980a62c5c9777d67,
     type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
@@ -20,16 +20,19 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - Texture2D_EE02FA25:
-        m_Texture: {fileID: 2800000, guid: a48cd9108c5b1a4458238e2de00c0ecc, type: 3}
+    - MainTexture_:
+        m_Texture: {fileID: 2800000, guid: 63b07dea73e8f7a4988cf8aaaf320c47, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - Texture2D_7675A138:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - Vector1_3F05DC7B: 0.23
-    - Vector1_7114249E: 0.21
-    - Vector1_7DB5523A: 25
-    - Vector1_8979B678: 2
+    - Vector1_168C199: 1000
+    - Vector1_52CCA3D6: 3.19
+    - Vector1_A4CF42CD: 1.17
     m_Colors:
-    - Color_139C40D9: {r: 0.5943396, g: 0.5943396, b: 0.5943396, a: 0}
-    - Vector2_63414A24: {r: -0.5, g: 0, b: 0, a: 0}
-    - Vector2_9FBBF7E9: {r: -3, g: 0, b: 0, a: 0}
+    - Color_1F755F0F: {r: 2.2198954, g: 0.7160464, b: 0.4502618, a: 1}
+    - Vector2_4D15706D: {r: -0.5, g: 0, b: 0, a: 0}
+    - Vector2_69A78860: {r: -2.45, g: 0, b: 0, a: 0}

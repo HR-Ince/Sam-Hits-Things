@@ -8,6 +8,7 @@ public class ManualLauncher : MonoBehaviour
 {
     [SerializeField] float thrustModifier;
     [SerializeField] float maxMagnitude = 10f, minimumDrawPercentage = 5f;
+    [SerializeField] UnityEvent onJump;
 
     public Vector3 DirectionVector { get { return dirVector; } }
     public Vector3 TargetVector { get { return targetVector; } }
@@ -49,16 +50,22 @@ public class ManualLauncher : MonoBehaviour
 
         float difMagnitude = Mathf.Abs(Mathf.Clamp(Vector3.Distance(pressedPosWorld, inputPosWorld), 0, maxMagnitude));
         dirVector = posDif / difMagnitude;
+        dirVector = new Vector3(dirVector.x, dirVector.y, 0);
         drawPercentage = Mathf.Clamp(difMagnitude / maxMagnitude * 100, 0, 100);
     }
     public bool WillLaunch()
     {
         return drawPercentage > minimumDrawPercentage;
     }
-    public void Launch()
+    public void Launch(float additionalThrust)
     {
-        float thrust = drawPercentage * thrustModifier;
+        print("Launch");
+        float thrust = drawPercentage * (thrustModifier + additionalThrust);
         objectToLaunch.GetComponent<Rigidbody>().AddForce(dirVector * thrust);
+        if(onJump != null)
+        {
+            onJump.Invoke();
+        }
         ResetValues();
     }
     private void ResetValues()

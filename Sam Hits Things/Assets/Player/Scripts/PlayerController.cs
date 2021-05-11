@@ -6,7 +6,6 @@ public class PlayerController : MonoBehaviour, IPerishable
 {
     [SerializeField] PlayerStateRegister register;
     [SerializeField] GameEvent OnPlayerDeath;
-    [SerializeField] UnityEvent onJump;
     [SerializeField] LayerMask playerLayerMask;
 
     public bool IsBurdened { get { return isBurdened; } }
@@ -65,12 +64,12 @@ public class PlayerController : MonoBehaviour, IPerishable
                 if (grabHandler.IsBurdened)
                 {
                     launcher.SetObjectToLaunch(grabHandler.HeldObject);
-                    line.StartLine(grabHandler.HeldObject.transform.position);
+                    line.StartLineAt(grabHandler.HeldObject.transform.position);
                 }
                 else
                 {
                     launcher.SetObjectToLaunch(gameObject);
-                    line.StartLine(transform.position);
+                    line.StartLineAt(transform.position);
                 }
                 
                 launcher.SetPressPos(input.PressPos);
@@ -80,7 +79,7 @@ public class PlayerController : MonoBehaviour, IPerishable
             if (input.PressHeld)
             {
                 launcher.AdjustTargetting(input.PressPos);
-                line.ManageTrajectoryLine(_rigidbody.mass);
+                line.ManageTrajectoryLine(launcher.DirectionVector, launcher.DrawPercentage, launcher.ThrustModifier, _rigidbody.mass);
                 SortFacing(launcher.DirectionVector);
             }
 
@@ -89,11 +88,9 @@ public class PlayerController : MonoBehaviour, IPerishable
                 line.DisableLine();
                 if (launcher.WillLaunch())
                 {
-                    if (onJump != null && !grabHandler.IsBurdened)
-                        onJump.Invoke();
                     if (grabHandler.IsBurdened)
                         grabHandler.ReleaseHeldObject();
-                    launcher.Launch();
+                    launcher.Launch(1);
                 }
                     
             }
