@@ -11,20 +11,17 @@ public class PlayerGrabHandler : MonoBehaviour
     [SerializeField] Vector3 interactionTextOffset;
     [SerializeField] LayerMask interactableLayerMask, playerLayerMask;
 
-    public bool IsBurdened { get { return isBurdened; } }
     public GameObject HeldObject { get { return heldObject; } }
 
     Collider[] collidersInReach;
     List<TMP_Text> labels = new List<TMP_Text>();
     List<Collider> collectableObjects = new List<Collider>();
 
-    private bool isBurdened;
+    private GameObject objToGrab;
     private GameObject heldObject;
 
     private Camera cam;
     private Canvas canvas;
-    private PlayerInput input;
-    private PlayerController state;
 
     private void Awake()
     {
@@ -36,15 +33,19 @@ public class PlayerGrabHandler : MonoBehaviour
     private void FetchExternalReferences()
     {
         cam = Camera.main;
-        input = GetComponentInParent<PlayerInput>();
-        state = GetComponentInParent<PlayerController>();
-        if (state == null) { Debug.LogError("State manager missing from player"); }
 
         canvas = FindObjectOfType<Canvas>();
     }
-    private void ManageCollectableObjects(Collider[] colliders)
+    private void Update()
     {
-        foreach(Collider collider in colliders)
+        if(heldObject != null)
+            heldObject.transform.position = transform.position;
+    }
+    public void ManageCollectableObjects()
+    {
+        collidersInReach = Physics.OverlapBox(transform.position, Vector3.one * reach, Quaternion.identity, interactableLayerMask);
+
+        foreach (Collider collider in collidersInReach)
         {
             Vector3 playerDirection = (transform.parent.position - collider.transform.position).normalized;
             Physics.Raycast(collider.transform.position, playerDirection, out RaycastHit hit, reach);
@@ -61,7 +62,7 @@ public class PlayerGrabHandler : MonoBehaviour
 
         if(collectableObjects.Count <= 0) { return; }
         
-        if (colliders.Length <= 0)
+        if (collidersInReach.Length <= 0)
         {
             collectableObjects.Clear();
             return;
@@ -71,9 +72,9 @@ public class PlayerGrabHandler : MonoBehaviour
         for(int i = 0; i < collectableObjects.Count; i++)
         {
             bool contains = false;
-            for (int j = 0; j < colliders.Length; j++)
+            for (int j = 0; j < collidersInReach.Length; j++)
             {
-                if (collectableObjects[i] == colliders[j])
+                if (collectableObjects[i] == collidersInReach[j])
                 {
                     contains = true;
                     break;
@@ -85,8 +86,10 @@ public class PlayerGrabHandler : MonoBehaviour
                 collectableObjects.Remove(collectableObjects[i]);
             }
         }
+
+        LabelCollectableObjects("Pick up");
     }
-    private void LabelObjects(string text)
+    private void LabelCollectableObjects(string text)
     {
         if (labels.Count < collectableObjects.Count)
         {
@@ -107,65 +110,37 @@ public class PlayerGrabHandler : MonoBehaviour
             labels[i].enabled = true;
         }
     }
-    private void Update()
+    public void DisableLabels()
     {
-        if (heldObject != null)
-            isBurdened = true;
-        else
+        for (int i = 0; i < labels.Count; i++)
         {
-            isBurdened = false;
-        }
-
-        if (state.IsGrounded)
-        {
-            if (!isBurdened)
-            {
-                collidersInReach = Physics.OverlapBox(transform.position, Vector3.one * reach, Quaternion.identity, interactableLayerMask);
-
-                ManageCollectableObjects(collidersInReach);
-                LabelObjects("Pick up");
-            }
-            else
-            {
-                for (int i = 0; i < labels.Count; i++)
-                {
-                    labels[i].enabled = false;
-                }
-            }
-
-            if (input.Pressed)
-            {
-                if (Physics.Raycast(cam.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 100f, interactableLayerMask))
-                {
-                    if (!isBurdened)
-                    {
-                        foreach (Collider collider in collectableObjects)
-                            if (collider == hit.collider)
-                            {
-                                Grab(hit.transform.gameObject);
-                            }
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (int i = 0; i < labels.Count; i++)
-            {
-                labels[i].enabled = false;
-            }
+            labels[i].enabled = false;
         }
     }
-    private void Grab(GameObject obj)
+    public bool CollectableObjectPressed()
     {
-        heldObject = obj;
-        heldObject.transform.position = transform.position;
+        if (Physics.Raycast(cam.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 100f, interactableLayerMask))
+        {
+            foreach (Collider collider in collectableObjects)
+                if (collider == hit.collider)
+                {
+                    objToGrab = collider.gameObject;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+        }
+        return false;
+    }
+    public void Grab()
+    {
+        heldObject = objToGrab;
         heldObject.transform.rotation = Quaternion.identity;
-        heldObject.GetComponent<Rigidbody>().isKinematic = true;
     }
     public void ReleaseHeldObject()
     {
-        heldObject.GetComponent<Rigidbody>().isKinematic = false;
         heldObject = null;
         interactionText.enabled = false;
     }

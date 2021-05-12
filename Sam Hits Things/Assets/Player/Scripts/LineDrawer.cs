@@ -6,9 +6,11 @@ public class LineDrawer : MonoBehaviour
 {
     [SerializeField] float lineWidth = 1f;
     [SerializeField] float percentageOfTrajectoryToDraw = 0.75f;
+
+    private GameObject employingObject;
+    private Rigidbody employingBody;
     private LineRenderer line;
     private List<Vector3> linePoints = new List<Vector3>();
-    private ManualLauncher launcher;
 
     private void Awake()
     {
@@ -18,8 +20,6 @@ public class LineDrawer : MonoBehaviour
     private void FetchExternalVariables()
     {
         line = GetComponent<LineRenderer>();
-        launcher = GetComponentInParent<ManualLauncher>();
-        if (launcher == null) { Debug.LogError("ManualLauncher missing from parent of LineDrawer"); }
     }
     private void SetLineVariables()
     {
@@ -27,11 +27,6 @@ public class LineDrawer : MonoBehaviour
         line.endWidth = lineWidth;
         line.positionCount = 10;
         line.enabled = false;
-    }
-
-    public void StartLineAt(Vector3 objectPosition)
-    {
-        line.SetPosition(0, objectPosition);
     }
     public void ManageTrajectoryLine(Vector3 targetDirection, float drawPercentage, float thrust, float objectMass)
     {        
@@ -49,7 +44,7 @@ public class LineDrawer : MonoBehaviour
         linePoints.Clear();
 
         float stepTimePassed;
-        Vector3 startingPos = transform.position;
+        Vector3 startingPos = line.GetPosition(0);
 
         for(int i = 0; i < line.positionCount; i++)
         {

@@ -13,7 +13,7 @@ public class PlayerMovement : MonoBehaviour
 
     private Rigidbody rigidBody;
     private ManualLauncher launcher;
-    private OriballPlayerController controller;
+    private SpiderPlayerController controller;
 
     private void Awake()
     {
@@ -22,7 +22,7 @@ public class PlayerMovement : MonoBehaviour
     private void FetchExternalVariables()
     {
         rigidBody = GetComponent<Rigidbody>();
-        controller = GetComponent<OriballPlayerController>();
+        controller = GetComponent<SpiderPlayerController>();
         if (controller == null) { Debug.LogError("PlayerController missing from Player"); }
         launcher = GetComponent<ManualLauncher>();
         if (launcher == null) { Debug.LogError("ManualLanucher missing from Player"); }
