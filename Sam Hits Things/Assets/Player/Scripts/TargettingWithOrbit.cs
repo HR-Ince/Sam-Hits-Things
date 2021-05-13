@@ -7,11 +7,15 @@ public class TargettingWithOrbit : PlayerTargettingManager
     [SerializeField] float orbitRadius = 2f;
     [SerializeField] LayerMask interactableMask;
 
+    public bool IsTargetMovable { get 
+        { 
+            if(target == null) { return false; }
+            else { return target.CompareTag("Movable"); }
+        } }
     public GameObject Target { get { return target; } }
 
     private Collider[] targets;
 
-    private bool isOrbiting; 
     private float targetDistance;
     private GameObject target;
 
@@ -37,39 +41,16 @@ public class TargettingWithOrbit : PlayerTargettingManager
             }
         }
 
-        if (target.CompareTag("Movable"))
-        {
-            targettingOrigin = Vector3.Lerp(transform.position, target.transform.position, 0.5f);
-        }
-        else
-        {
-            targettingOrigin = target.transform.position;
-        }
+        targettingOrigin = target.transform.position;
     }
     public new void AdjustTargetting(Vector3 inputPos)
     {
         base.AdjustTargetting(inputPos);
-        GetLaunchPosition();
-    }
-
-    private Vector3 GetLaunchPosition()
-    {
-        if (float.IsNaN(dirVector.x) || float.IsNaN(dirVector.y) || target == null) { return Vector3.zero; }
-
-        float targetAngle = Vector3.SignedAngle(Vector3.right, dirVector, Vector3.back);
-
-        float newX = targettingOrigin.x + targetDistance * Mathf.Cos(targetAngle);
-        float newY = targettingOrigin.y + targetDistance * Mathf.Sin(targetAngle);
-
-        isOrbiting = true;
-
-        return new Vector3(newX, newY, 0);
     }
     public void ClearTarget()
     {
         Time.timeScale = 1f;
         target = null;
-        isOrbiting = false;
     }
 
 }

@@ -7,12 +7,16 @@ public class BoarPlayerController : PlayerControllerBase
     private bool pressIsGood;
     private GameObject heldObject;
 
+    private BoxCollider boxCollider;
     private PlayerGrabHandler grabHandler;
     private Rigidbody heldRigidbody;
 
     private void Awake()
     {
         FetchExternalVariables();
+
+        colliderHalfExtents = new Vector3(boxCollider.size.x / 2, boxCollider.size.y / 2, boxCollider.size.z / 2);
+        colliderCentre = boxCollider.center;
     }
     private new void FetchExternalVariables()
     {
@@ -20,6 +24,7 @@ public class BoarPlayerController : PlayerControllerBase
         grabHandler = GetComponentInChildren<PlayerGrabHandler>();
         if (grabHandler == null) { Debug.LogError("GrabHandler missing from children of player"); }
         if(grabHandler.transform.position == transform.position) { Debug.Log("Grab handler not offset from player"); }
+        boxCollider = _collider as BoxCollider;
     }
 
     private void Update()
@@ -57,9 +62,9 @@ public class BoarPlayerController : PlayerControllerBase
                 if (targetting.DrawIsSufficient())
                 {
                     if (isBurdened)
-                        line.ManageTrajectoryLine(targetting.DirectionVector, targetting.DrawPercentage, launcher.ThrustModifier, heldRigidbody.mass);
+                        line.ManageTrajectoryLine(launcher.ThrustModifier, 0, heldRigidbody.mass, ForceMode.Force);
                     else
-                        line.ManageTrajectoryLine(targetting.DirectionVector, targetting.DrawPercentage, launcher.ThrustModifier, _rigidbody.mass);
+                        line.ManageTrajectoryLine(launcher.ThrustModifier, 0, _rigidbody.mass, ForceMode.Force);
                     line.enabled = true;
                 }
                 else

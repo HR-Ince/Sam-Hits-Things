@@ -7,8 +7,7 @@ public class LineDrawer : MonoBehaviour
     [SerializeField] float lineWidth = 1f;
     [SerializeField] float percentageOfTrajectoryToDraw = 0.75f;
 
-    private GameObject employingObject;
-    private Rigidbody employingBody;
+    private PlayerTargettingManager targeter;
     private LineRenderer line;
     private List<Vector3> linePoints = new List<Vector3>();
 
@@ -20,6 +19,8 @@ public class LineDrawer : MonoBehaviour
     private void FetchExternalVariables()
     {
         line = GetComponent<LineRenderer>();
+        targeter = GetComponent<PlayerTargettingManager>();
+        if(targeter == null) { Debug.LogError("Targeter missing from line drawer GO"); }
     }
     private void SetLineVariables()
     {
@@ -28,13 +29,19 @@ public class LineDrawer : MonoBehaviour
         line.positionCount = 10;
         line.enabled = false;
     }
-    public void ManageTrajectoryLine(Vector3 targetDirection, float drawPercentage, float thrust, float objectMass)
-    {        
+    public void ManageTrajectoryLine(float thrustModifier, float additionalThrust, float mass, ForceMode forceMode)
+    {
+        Vector3 targetDirection = targeter.DirectionVector;
+
         if (float.IsNaN(targetDirection.x) || float.IsNaN(targetDirection.y)) { return; }
         line.enabled = true;
 
-        Vector3 forceVector = targetDirection * (drawPercentage * thrust);
-        Vector3 velocityVector = (forceVector / objectMass) * Time.fixedDeltaTime;
+        float forceDuration = forceMode == ForceMode.Force || forceMode == ForceMode.Acceleration ? Time.fixedDeltaTime : 1;
+        float objectMass = forceMode == ForceMode.Impulse || forceMode == ForceMode.Force ? mass : 1;
+
+        float thrust = targeter.DrawPercentage * (thrustModifier + additionalThrust);
+        Vector3 forceVector = targetDirection * thrust;
+        Vector3 velocityVector = (forceVector / objectMass) * forceDuration;
 
         float gravity = Vector3.Magnitude(Physics.gravity);
         float flightTime = Vector3.Magnitude(velocityVector) / (gravity / 2);
@@ -44,7 +51,7 @@ public class LineDrawer : MonoBehaviour
         linePoints.Clear();
 
         float stepTimePassed;
-        Vector3 startingPos = line.GetPosition(0);
+        Vector3 startingPos = targeter.TargettingOrigin;
 
         for(int i = 0; i < line.positionCount; i++)
         {

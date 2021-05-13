@@ -5,34 +5,35 @@ using UnityEngine;
 public class PlayerControllerBase : MonoBehaviour
 {
 
-    [SerializeField] PlayerStateRegister register;
-    [SerializeField] GameEvent OnPlayerDeath;
-    [SerializeField] LayerMask playerLayerMask;
+    [SerializeField] protected PlayerStateRegister register;
+    [SerializeField] protected GameEvent OnPlayerDeath;
+    [SerializeField] protected LayerMask playerLayerMask;
 
     public bool IsGrounded { get { return isGrounded; } }
 
-    internal bool isGrounded = true;
-    internal Vector3 colliderHalfExtents;
+    protected bool isGrounded = true;
+    protected float gravityMagnitude;
+    protected Vector3 colliderCentre;
+    protected Vector3 colliderHalfExtents;
 
-    internal BoxCollider _collider;
-    internal LineDrawer line;
-    internal LaunchModule launcher;
-    internal PlayerInput input;
-    internal PlayerTargettingManager targetting;
-    internal Rigidbody _rigidbody;
+    protected Collider _collider;
+    protected LineDrawer line;
+    protected LaunchModule launcher;
+    protected PlayerInput input;
+    protected PlayerTargettingManager targetting;
+    protected Rigidbody _rigidbody;
 
     private void Awake()
     {
         FetchExternalVariables();
 
-        register.PlayerOne = gameObject;
-        colliderHalfExtents = new Vector3(_collider.size.x / 2, _collider.size.y / 2, _collider.size.z / 2);
+        gravityMagnitude = Vector3.Magnitude(Physics.gravity);
     }
-    internal void FetchExternalVariables()
+    protected void FetchExternalVariables()
     {
         input = GetComponent<PlayerInput>();
 
-        _collider = GetComponent<BoxCollider>();
+        _collider = GetComponent<Collider>();
         if (_collider == null) { Debug.LogError("Collider missing from player"); }
         _rigidbody = GetComponent<Rigidbody>();
         if (_rigidbody == null) { Debug.LogError("Rigidbody missing from player"); }
@@ -44,9 +45,9 @@ public class PlayerControllerBase : MonoBehaviour
         targetting = GetComponentInChildren<PlayerTargettingManager>();
         if (targetting == null) { Debug.LogError("Targetting Manager missing from children of player"); }
     }
-    internal void GetIsGrounded()
+    protected void GetIsGrounded()
     {
-        if (Physics.CheckBox(transform.position + _collider.center - new Vector3(0, colliderHalfExtents.y, 0),
+        if (Physics.CheckBox(transform.position + colliderCentre - new Vector3(0, colliderHalfExtents.y, 0),
             new Vector3(colliderHalfExtents.x, 0.1f, colliderHalfExtents.z), Quaternion.identity, ~playerLayerMask))
         {
             isGrounded = true;
@@ -57,7 +58,7 @@ public class PlayerControllerBase : MonoBehaviour
 
     public bool GetIsGroundedNarrow()
     {
-        if (Physics.CheckBox(transform.position + _collider.center - new Vector3(0, colliderHalfExtents.y, 0),
+        if (Physics.CheckBox(transform.position + colliderCentre - new Vector3(0, colliderHalfExtents.y, 0),
             new Vector3(colliderHalfExtents.x / 2, 0.1f, colliderHalfExtents.z / 2), Quaternion.identity, ~playerLayerMask))
             return true;
         else
@@ -67,7 +68,7 @@ public class PlayerControllerBase : MonoBehaviour
     {
         OnPlayerDeath.Invoke();
     }
-    internal void SortFacing(Vector3 direction)
+    protected void SortFacing(Vector3 direction)
     {
         if (direction.x > 0.00f)
         {

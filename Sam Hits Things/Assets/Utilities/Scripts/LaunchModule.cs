@@ -16,7 +16,7 @@ public class LaunchModule : MonoBehaviour
     public void Launch(Rigidbody body, Vector3 launchDirection, float drawPercentage, float additionalThrust)
     {
         float thrust = drawPercentage * (thrustModifier + additionalThrust);
-        body.AddForce(launchDirection * thrust);
+        body.AddForce(launchDirection * thrust, ForceMode.Force);
         if (onJump != null)
         {
             onJump.Invoke();

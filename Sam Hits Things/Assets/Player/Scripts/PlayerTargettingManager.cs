@@ -9,9 +9,10 @@ public class PlayerTargettingManager : MonoBehaviour
     public float DrawPercentage { get { return drawPercentage; } }
     public Vector3 DirectionVector { get { return dirVector; } }
     public Vector3 TargetVector { get { return targetVector; } }
+    public Vector3 TargettingOrigin { get { return targettingOrigin; } }
 
-    internal Vector3 targettingOrigin;
-    internal Vector3 dirVector;
+    protected Vector3 targettingOrigin;
+    protected Vector3 dirVector;
 
     private float cameraDepth;
     private float drawPercentage;
