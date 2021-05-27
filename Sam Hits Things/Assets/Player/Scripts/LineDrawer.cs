@@ -6,6 +6,7 @@ public class LineDrawer : MonoBehaviour
 {
     [SerializeField] float lineWidth = 1f;
     [SerializeField] float percentageOfTrajectoryToDraw = 0.75f;
+    [SerializeField] int lineMaxPoints = 10;
 
     private PlayerTargettingManager targeter;
     private LineRenderer line;
@@ -20,13 +21,13 @@ public class LineDrawer : MonoBehaviour
     {
         line = GetComponent<LineRenderer>();
         targeter = GetComponent<PlayerTargettingManager>();
-        if(targeter == null) { Debug.LogError("Targeter missing from line drawer GO"); }
+        if (targeter == null) { Debug.LogError("Targeter missing from line drawer GO"); }
     }
     private void SetLineVariables()
     {
         line.startWidth = lineWidth;
         line.endWidth = lineWidth;
-        line.positionCount = 10;
+        line.positionCount = lineMaxPoints;
         line.enabled = false;
     }
     public void ManageTrajectoryLine(float thrustModifier, float additionalThrust, float mass, ForceMode forceMode)
@@ -53,17 +54,32 @@ public class LineDrawer : MonoBehaviour
         float stepTimePassed;
         Vector3 startingPos = targeter.TargettingOrigin;
 
-        for(int i = 0; i < line.positionCount; i++)
+        for(int i = 0; i < lineMaxPoints; i++)
         {
             stepTimePassed = stepInterval * i;
 
             float xPos = startingPos.x + velocityVector.x * stepTimePassed;
             float yPos = startingPos.y + velocityVector.y * stepTimePassed - 0.5f * gravity * stepTimePassed * stepTimePassed;
 
-            linePoints.Add(new Vector3(xPos, yPos, 0));
+            Vector3 newPoint = new Vector3(xPos, yPos, 0);
+
+            linePoints.Add(newPoint);
         }
-        line.positionCount = linePoints.Count;
-        line.SetPositions(linePoints.ToArray());
+
+        line.positionCount = 0;
+
+        for(int j = 0; j < linePoints.Count; j++)
+        {
+            line.positionCount++;
+
+            if (j > 1 && Physics.Linecast(linePoints[j - 1], linePoints[j], out RaycastHit hit))
+            {
+                line.SetPosition(j, hit.point);
+                break;
+            }
+
+            line.SetPosition(j, linePoints[j]);
+        }
     }
     public void ManageBasicLine(Vector3 targetDirection, float length)
     {

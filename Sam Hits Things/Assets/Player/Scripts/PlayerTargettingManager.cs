@@ -19,13 +19,13 @@ public class PlayerTargettingManager : MonoBehaviour
     private Vector3 targetVector;
     private Vector3 pressedPosWorld;
 
-    private Camera cam;
+    internal Camera cam;
 
     private void Awake()
     {
         FetchExternalVariables();
     }
-    private void FetchExternalVariables()
+    internal void FetchExternalVariables()
     {
         cam = Camera.main;
         cameraDepth = -Camera.main.transform.position.z;
@@ -53,7 +53,10 @@ public class PlayerTargettingManager : MonoBehaviour
 
         float difMagnitude = Mathf.Abs(Mathf.Clamp(Vector3.Distance(pressedPosWorld, inputPosWorld), 0, maxMagnitude));
         dirVector = posDif / difMagnitude;
-        dirVector = new Vector3(dirVector.x, dirVector.y, 0);
+        if (float.IsNaN(dirVector.x) || float.IsNaN(dirVector.y))
+            dirVector = Vector3.zero;
+        else
+            dirVector = new Vector3(dirVector.x, dirVector.y, 0);
         drawPercentage = Mathf.Clamp(difMagnitude / maxMagnitude * 100, 0, 100);
     }
     public bool DrawIsSufficient()

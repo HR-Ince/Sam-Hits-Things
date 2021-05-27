@@ -3,23 +3,13 @@ using UnityEngine.Events;
 
 public class LaunchModule : MonoBehaviour
 {
-    [SerializeField] float thrustModifier;
     [SerializeField] UnityEvent onJump;
 
-    public float ThrustModifier { get { return thrustModifier; } }
-
-    public void Launch(Rigidbody body, Vector3 launchDirection, float drawPercentage)
+    public void Launch(Rigidbody body, Vector3 launchDirection, float drawPercentage, float thrust, ForceMode forceMode)
     {
-        Launch(body, launchDirection, drawPercentage, 0);
-    }
+        Vector3 force = launchDirection * (drawPercentage * thrust);
+        body.AddForce(force, forceMode);
 
-    public void Launch(Rigidbody body, Vector3 launchDirection, float drawPercentage, float additionalThrust)
-    {
-        float thrust = drawPercentage * (thrustModifier + additionalThrust);
-        body.AddForce(launchDirection * thrust, ForceMode.Force);
-        if (onJump != null)
-        {
-            onJump.Invoke();
-        }
+        print("direction: " + launchDirection + ", drawPercentage: " + drawPercentage + "thrust: " + thrust);
     }
 }

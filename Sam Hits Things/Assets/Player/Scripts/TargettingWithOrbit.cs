@@ -1,10 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.UI;
 
 public class TargettingWithOrbit : PlayerTargettingManager
 {
     [SerializeField] float orbitRadius = 2f;
+    [SerializeField] Image crosshairUI;
     [SerializeField] LayerMask interactableMask;
 
     public bool IsTargetMovable { get 
@@ -19,6 +19,22 @@ public class TargettingWithOrbit : PlayerTargettingManager
     private float targetDistance;
     private GameObject target;
 
+    private void Awake()
+    {
+        FetchExternalVariables(); // base
+
+        crosshairUI.enabled = false;
+    }
+    private void Update()
+    {
+        if (target != null)
+        {
+            ManageUI();
+            print("Has target");
+        }            
+        else
+            DisableUI();
+    }
     public bool HasOrbitTarget()
     {
         targets = Physics.OverlapSphere(transform.position, orbitRadius, interactableMask);
@@ -28,8 +44,7 @@ public class TargettingWithOrbit : PlayerTargettingManager
         else
             return true;
     }
-
-    public void GetOrbitCentre()
+    public void GetOrbitTarget()
     {
         foreach (Collider collider in targets)
         {
@@ -37,19 +52,42 @@ public class TargettingWithOrbit : PlayerTargettingManager
             if (target == null || distance < targetDistance)
             {
                 target = collider.gameObject;
-                targetDistance = distance;
             }
         }
 
-        targettingOrigin = target.transform.position;
+        FreezeOrbitTarget();
     }
-    public new void AdjustTargetting(Vector3 inputPos)
+
+    private void FreezeOrbitTarget()
     {
-        base.AdjustTargetting(inputPos);
+        if(target.TryGetComponent(out Rigidbody rB))
+        {
+            rB.isKinematic = true;
+        }
+    }
+    public void ManageUI()
+    {
+        if (!crosshairUI.enabled)
+            crosshairUI.enabled = true;
+
+        crosshairUI.transform.position = cam.WorldToScreenPoint(target.transform.position);
+
+        float angle = Vector3.SignedAngle(dirVector, Vector3.right, Vector3.back);
+        Vector3 eulerRot = new Vector3(0f, 0f, angle);
+
+        crosshairUI.transform.rotation = Quaternion.Euler(eulerRot);
+    }
+    public void DisableUI()
+    {
+        crosshairUI.enabled = false;
     }
     public void ClearTarget()
     {
         Time.timeScale = 1f;
+        if(target.TryGetComponent(out Rigidbody rB))
+        {
+            rB.isKinematic = false;
+        }
         target = null;
     }
 

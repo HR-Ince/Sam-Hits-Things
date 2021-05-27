@@ -60,6 +60,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -84,6 +85,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!135 &1832634476287710032
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -142,6 +144,24 @@ MonoBehaviour:
   playerLayerMask:
     serializedVersion: 2
     m_Bits: 256
+--- !u!114 &319129612
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1832634476416027829}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0f8defab4adc694bb40c08417546fe8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxMagnitude: 10
+  minimumDrawPercentage: 5
+  orbitRadius: 2
+  interactableMask:
+    serializedVersion: 2
+    m_Bits: 8192
 --- !u!1001 &803490331557262722
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -149,6 +169,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1832634476287710045}
     m_Modifications:
+    - target: {fileID: 1317374821658999091, guid: cbcee3190af90104984001f6704d6696,
+        type: 3}
+      propertyPath: thrustModifier
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1317374821658999093, guid: cbcee3190af90104984001f6704d6696,
+        type: 3}
+      propertyPath: percentageOfTrajectoryToDraw
+      value: 0.3
+      objectReference: {fileID: 0}
     - target: {fileID: 1317374821658999094, guid: cbcee3190af90104984001f6704d6696,
         type: 3}
       propertyPath: m_RootOrder
@@ -209,8 +239,15 @@ PrefabInstance:
       propertyPath: m_Name
       value: Targetting module
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 1317374821658999090, guid: cbcee3190af90104984001f6704d6696, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: cbcee3190af90104984001f6704d6696, type: 3}
+--- !u!1 &1832634476416027829 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1317374821658999095, guid: cbcee3190af90104984001f6704d6696,
+    type: 3}
+  m_PrefabInstance: {fileID: 803490331557262722}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1832634476416027828 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1317374821658999094, guid: cbcee3190af90104984001f6704d6696,
