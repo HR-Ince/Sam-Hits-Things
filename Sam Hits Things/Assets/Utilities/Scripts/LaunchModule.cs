@@ -9,7 +9,5 @@ public class LaunchModule : MonoBehaviour
     {
         Vector3 force = launchDirection * (drawPercentage * thrust);
         body.AddForce(force, forceMode);
-
-        print("direction: " + launchDirection + ", drawPercentage: " + drawPercentage + "thrust: " + thrust);
     }
 }

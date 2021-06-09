@@ -6,6 +6,7 @@ public class AlchemistPlayerController : MonoBehaviour
 {
     [SerializeField] float throwStrength;
     [SerializeField] GameObject sphere;
+    [SerializeField] GameEvent onSphereRetrieval;
     [SerializeField] PlayerStateRegister register;
 
     private bool goodPress = false;
@@ -63,8 +64,17 @@ public class AlchemistPlayerController : MonoBehaviour
                 sphere.SetActive(true);
                 launcher.Launch(sphereBody, targeter.DirectionVector, targeter.DrawPercentage, throwStrength, ForceMode.Impulse);
             }
-
+            sphereThrown = true;
             goodPress = false;
+        }
+
+        if(sphereThrown && input.Pressed)
+        {
+            sphere.SetActive(false);
+            sphere.transform.position = transform.position;
+            if (onSphereRetrieval != null)
+                onSphereRetrieval.Invoke();
+            sphereThrown = false;
         }
     }
 }
