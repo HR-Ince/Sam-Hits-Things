@@ -5,7 +5,7 @@ using UnityEngine;
 public class LineDrawer : MonoBehaviour
 {
     [SerializeField] float lineWidth = 1f;
-    [SerializeField] float percentageOfTrajectoryToDraw = 0.75f;
+    [SerializeField] int percentageOfTrajectoryToDraw = 10;
     [SerializeField] int lineMaxPoints = 10;
 
     private PlayerTargettingManager targeter;
@@ -44,16 +44,17 @@ public class LineDrawer : MonoBehaviour
         Vector3 forceVector = targetDirection * thrust;
         Vector3 velocityVector = (forceVector / objectMass) * forceDuration;
 
-        float gravity = Vector3.Magnitude(Physics.gravity);
+        float gravity = -Physics.gravity.y;
         float flightTime = Vector3.Magnitude(velocityVector) / (gravity / 2);
 
-        float stepInterval = flightTime * percentageOfTrajectoryToDraw / line.positionCount;
+        float stepInterval = flightTime / line.positionCount;
 
         linePoints.Clear();
 
         float stepTimePassed;
         Vector3 startingPos = targeter.TargettingOrigin;
 
+        //Calculate full trajectory
         for(int i = 0; i < lineMaxPoints; i++)
         {
             stepTimePassed = stepInterval * i;
@@ -66,8 +67,10 @@ public class LineDrawer : MonoBehaviour
             linePoints.Add(newPoint);
         }
 
-        line.positionCount = 0;
+        line.SetPositions(linePoints.ToArray());
 
+        //Calculate trajectory to draw
+        /*
         for(int j = 0; j < linePoints.Count; j++)
         {
             line.positionCount++;
@@ -79,7 +82,7 @@ public class LineDrawer : MonoBehaviour
             }
 
             line.SetPosition(j, linePoints[j]);
-        }
+        }*/
     }
     public void ManageBasicLine(Vector3 targetDirection, float length)
     {

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class AlchemistPlayerController : MonoBehaviour
@@ -14,7 +12,8 @@ public class AlchemistPlayerController : MonoBehaviour
     
     private float sphereMass;
     private Rigidbody sphereBody;
-    
+
+    private Animator anim;
     private LaunchModule launcher;
     private LineDrawer line;
     private PlayerInput input;
@@ -37,6 +36,7 @@ public class AlchemistPlayerController : MonoBehaviour
         sphereBody = sphere.GetComponent<Rigidbody>();
         sphereMass = sphereBody.mass;
 
+        anim = GetComponent<Animator>();
         input = GetComponent<PlayerInput>();
 
         launcher = GetComponentInChildren<LaunchModule>();
@@ -50,6 +50,7 @@ public class AlchemistPlayerController : MonoBehaviour
         {
             goodPress = true;
             targeter.SetupTargetting(transform.position, input.PressPos);
+            anim.SetTrigger("Readying");
         }
         if(goodPress && input.PressHeld)
         {
@@ -59,6 +60,7 @@ public class AlchemistPlayerController : MonoBehaviour
         if(goodPress && input.PressReleased)
         {            
             line.DisableLine();
+            anim.SetTrigger("Throwing");
             if (targeter.DrawIsSufficient())
             {
                 sphere.SetActive(true);
@@ -70,11 +72,16 @@ public class AlchemistPlayerController : MonoBehaviour
 
         if(sphereThrown && input.Pressed)
         {
-            sphere.SetActive(false);
-            sphere.transform.position = transform.position;
-            if (onSphereRetrieval != null)
-                onSphereRetrieval.Invoke();
-            sphereThrown = false;
+            anim.SetTrigger("Recalling");
         }
+    }
+
+    private void RetrieveSphere()
+    {
+        sphere.SetActive(false);
+        sphere.transform.position = transform.position;
+        if (onSphereRetrieval != null)
+            onSphereRetrieval.Invoke();
+        sphereThrown = false;
     }
 }

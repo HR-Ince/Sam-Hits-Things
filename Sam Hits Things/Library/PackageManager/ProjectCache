@@ -5,16 +5,16 @@ m_ProjectFiles:
     m_ContentTrackingEnabled: 1
     m_ModificationDate:
       serializedVersion: 2
-      ticks: 637565178061939182
-    m_Hash: 3530348111
+      ticks: 637608369675753367
+    m_Hash: 1123456819
   m_LockFileStatus:
     m_FilePath: D:/Zodiac Ram/Sam Hits Things/r_Sam/Sam Hits Things/Sam Hits Things/Packages/packages-lock.json
     m_PathExists: 1
     m_ContentTrackingEnabled: 1
     m_ModificationDate:
       serializedVersion: 2
-      ticks: 637565178292580785
-    m_Hash: 3219272106
+      ticks: 637608369677615075
+    m_Hash: 848764174
 m_EmbeddedPackageManifests:
   m_ManifestsStatus: {}
 m_PackageAssets:
@@ -129,9 +129,11 @@ m_PackageAssets:
         - 2.6.3-preview.2
         - 2.6.3
         - 2.6.4
+        - 2.6.5
         - 2.7.1
         - 2.7.2
         - 2.7.3
+        - 2.7.4
         - 2.8.0-exp.1
         - 2.8.0-exp.2
         - 2.8.0-pre.1
@@ -149,13 +151,15 @@ m_PackageAssets:
         - 2.6.3-preview.2
         - 2.6.3
         - 2.6.4
+        - 2.6.5
         - 2.7.1
         - 2.7.2
         - 2.7.3
+        - 2.7.4
         - 2.8.0-exp.1
         - 2.8.0-exp.2
         - 2.8.0-pre.1
-        verified: 2.6.4
+        verified: 2.6.5
       dependencies: []
       resolvedDependencies: []
       keywords:
@@ -241,6 +245,7 @@ m_PackageAssets:
         - 1.3.7
         - 1.3.8
         - 1.3.9
+        - 1.4.9
         - 1.5.7
         - 2.0.0-preview.6
         - 2.0.0-preview.8
@@ -254,6 +259,7 @@ m_PackageAssets:
         - 2.1.0-preview.6
         compatible:
         - 1.3.9
+        - 1.4.9
         - 1.5.7
         - 2.0.0-preview.6
         - 2.0.0-preview.8
@@ -346,6 +352,7 @@ m_PackageAssets:
         - 3.0.4
         - 3.0.5
         - 3.0.6
+        - 3.0.7
         compatible:
         - 1.0.2
         - 1.0.6
@@ -371,6 +378,7 @@ m_PackageAssets:
         - 3.0.4
         - 3.0.5
         - 3.0.6
+        - 3.0.7
         verified: 2.0.7
       dependencies:
       - name: com.unity.test-framework
@@ -441,6 +449,7 @@ m_PackageAssets:
         - 2.0.5
         - 2.0.7
         - 2.0.8
+        - 2.0.9
         compatible:
         - 1.0.2
         - 1.0.3
@@ -455,7 +464,8 @@ m_PackageAssets:
         - 2.0.5
         - 2.0.7
         - 2.0.8
-        verified: 2.0.8
+        - 2.0.9
+        verified: 2.0.9
       dependencies:
       - name: com.unity.test-framework
         version: 1.1.9
@@ -596,6 +606,7 @@ m_PackageAssets:
         - 1.2.0-preview
         - 1.2.0
         - 1.2.1
+        - 1.2.2
         compatible:
         - 0.1.5-preview
         - 0.2.7-preview
@@ -607,7 +618,8 @@ m_PackageAssets:
         - 1.2.0-preview
         - 1.2.0
         - 1.2.1
-        verified: 1.2.1
+        - 1.2.2
+        verified: 1.2.2
       dependencies: []
       resolvedDependencies: []
       keywords:
@@ -689,6 +701,7 @@ m_PackageAssets:
         - 1.2.1-preview
         - 1.3.0
         - 1.3.2
+        - 1.4.1
         compatible:
         - 1.0.0-preview.4
         - 1.0.0-preview.5
@@ -719,6 +732,7 @@ m_PackageAssets:
         - 1.2.1-preview
         - 1.3.0
         - 1.3.2
+        - 1.4.1
         verified: 1.3.2
       dependencies:
       - name: com.unity.modules.androidjni
@@ -903,91 +917,13 @@ m_PackageAssets:
         url: git+https://github.com/Unity-Technologies/com.unity.probuilder.git
         revision: 6a81f0485f2eed8c8a0c193422d52d55f64cd79c
         path: 
-    - packageId: com.unity.progrids@3.0.3-preview.6
+    - packageId: com.unity.render-pipelines.universal@10.5.1
       testable: 0
       isDirectDependency: 1
-      version: 3.0.3-preview.6
+      version: 10.5.1
       source: 1
       resolvedPath: D:\Zodiac Ram\Sam Hits Things\r_Sam\Sam Hits Things\Sam Hits
-        Things\Library\PackageCache\com.unity.progrids@3.0.3-preview.6
-      assetPath: Packages/com.unity.progrids
-      name: com.unity.progrids
-      displayName: ProGrids
-      author:
-        name: 
-        email: 
-        url: 
-      category: 
-      type: 
-      description: 'Advanced grid and object snapping for the scene view. ProGrids
-        is a dynamically placed grid, available on all 3 axes and at any position
-        in the scene.
-
-
-        ProGrids snaps objects in world space, ensuring consistent
-        placement of objects in your level.
-
-
-        In addition, ProGrids is completely
-        customizable. Change the colors of your grid, the snap sizing, unit of measurement,
-        and more!'
-      status: 4
-      errors: []
-      versions:
-        all:
-        - 3.0.1-preview
-        - 3.0.2-preview
-        - 3.0.3-preview.0
-        - 3.0.3-preview.4
-        - 3.0.3-preview.5
-        - 3.0.3-preview.6
-        compatible:
-        - 3.0.1-preview
-        - 3.0.2-preview
-        - 3.0.3-preview.0
-        - 3.0.3-preview.4
-        - 3.0.3-preview.5
-        - 3.0.3-preview.6
-        verified: 
-      dependencies:
-      - name: com.unity.settings-manager
-        version: 1.0.2
-      resolvedDependencies:
-      - name: com.unity.settings-manager
-        version: 1.0.3
-      keywords:
-      - grid
-      - snap
-      - manipulation
-      - array
-      - align
-      registry:
-        id: main
-        name: 
-        url: https://packages.unity.com
-        scopes: []
-        isDefault: 1
-        capabilities: 7
-      hasRegistry: 1
-      hideInEditor: 1
-      entitlements:
-        isAllowed: 1
-      isAssetStorePackage: 0
-      datePublishedTicks: 637209307060000000
-      documentationUrl: 
-      hasRepository: 1
-      repository:
-        type: git
-        url: git+https://github.com/Unity-Technologies/com.unity.progrids.git
-        revision: 381f2b0b5dda11525d53e2c608284a3f68d1beff
-        path: 
-    - packageId: com.unity.render-pipelines.universal@10.5.0
-      testable: 0
-      isDirectDependency: 1
-      version: 10.5.0
-      source: 1
-      resolvedPath: D:\Zodiac Ram\Sam Hits Things\r_Sam\Sam Hits Things\Sam Hits
-        Things\Library\PackageCache\com.unity.render-pipelines.universal@10.5.0
+        Things\Library\PackageCache\com.unity.render-pipelines.universal@10.5.1
       assetPath: Packages/com.unity.render-pipelines.universal
       name: com.unity.render-pipelines.universal
       displayName: Universal RP
@@ -1023,6 +959,7 @@ m_PackageAssets:
         - 7.5.2
         - 7.5.3
         - 7.6.0
+        - 7.7.0
         - 8.0.1
         - 8.1.0
         - 8.2.0
@@ -1040,21 +977,23 @@ m_PackageAssets:
         - 10.3.2
         - 10.4.0
         - 10.5.0
+        - 10.5.1
         compatible:
         - 10.5.0
-        verified: 10.5.0
+        - 10.5.1
+        verified: 10.5.1
       dependencies:
       - name: com.unity.mathematics
         version: 1.1.0
       - name: com.unity.render-pipelines.core
-        version: 10.5.0
+        version: 10.5.1
       - name: com.unity.shadergraph
-        version: 10.5.0
+        version: 10.5.1
       resolvedDependencies:
       - name: com.unity.mathematics
         version: 1.1.0
       - name: com.unity.render-pipelines.core
-        version: 10.5.0
+        version: 10.5.1
       - name: com.unity.ugui
         version: 1.0.0
       - name: com.unity.modules.ui
@@ -1062,7 +1001,7 @@ m_PackageAssets:
       - name: com.unity.modules.imgui
         version: 1.0.0
       - name: com.unity.shadergraph
-        version: 10.5.0
+        version: 10.5.1
       - name: com.unity.searcher
         version: 4.3.2
       keywords:
@@ -1084,13 +1023,13 @@ m_PackageAssets:
       entitlements:
         isAllowed: 1
       isAssetStorePackage: 0
-      datePublishedTicks: 637550685770000000
+      datePublishedTicks: 637605794350000000
       documentationUrl: 
       hasRepository: 1
       repository:
         type: git
         url: git+https://github.com/Unity-Technologies/Graphics.git
-        revision: 7ff8fd444c179fd9bb380d61f4865be6935b47dd
+        revision: 73f32e8fcc2d0cbf3b73a16a5e30eb5cede41576
         path: 
     - packageId: com.unity.test-framework@1.1.24
       testable: 0
@@ -1141,9 +1080,13 @@ m_PackageAssets:
         - 1.1.20
         - 1.1.22
         - 1.1.24
+        - 1.1.26
+        - 1.1.27
         compatible:
         - 1.1.24
-        verified: 1.1.24
+        - 1.1.26
+        - 1.1.27
+        verified: 1.1.27
       dependencies:
       - name: com.unity.ext.nunit
         version: 1.0.6
@@ -1425,6 +1368,7 @@ m_PackageAssets:
         - 1.6.0-pre.3
         - 1.6.0-pre.4
         - 1.6.0-pre.5
+        - 1.6.1
         compatible:
         - 1.4.7
         - 1.4.8
@@ -1444,6 +1388,7 @@ m_PackageAssets:
         - 1.6.0-pre.3
         - 1.6.0-pre.4
         - 1.6.0-pre.5
+        - 1.6.1
         verified: 1.4.8
       dependencies:
       - name: com.unity.modules.director
@@ -3432,13 +3377,13 @@ m_PackageAssets:
         url: git@github.com:Unity-Technologies/Unity.Mathematics.git
         revision: 0a3dfafaf606098ea681de4c4be60f3aac63b773
         path: 
-    - packageId: com.unity.render-pipelines.core@10.5.0
+    - packageId: com.unity.render-pipelines.core@10.5.1
       testable: 0
       isDirectDependency: 0
-      version: 10.5.0
+      version: 10.5.1
       source: 1
       resolvedPath: D:\Zodiac Ram\Sam Hits Things\r_Sam\Sam Hits Things\Sam Hits
-        Things\Library\PackageCache\com.unity.render-pipelines.core@10.5.0
+        Things\Library\PackageCache\com.unity.render-pipelines.core@10.5.1
       assetPath: Packages/com.unity.render-pipelines.core
       name: com.unity.render-pipelines.core
       displayName: Core RP Library
@@ -3529,6 +3474,7 @@ m_PackageAssets:
         - 7.5.2
         - 7.5.3
         - 7.6.0
+        - 7.7.0
         - 8.0.1
         - 8.1.0
         - 8.2.0
@@ -3547,9 +3493,11 @@ m_PackageAssets:
         - 10.3.2
         - 10.4.0
         - 10.5.0
+        - 10.5.1
         compatible:
         - 10.5.0
-        verified: 10.5.0
+        - 10.5.1
+        verified: 10.5.1
       dependencies:
       - name: com.unity.ugui
         version: 1.0.0
@@ -3573,21 +3521,21 @@ m_PackageAssets:
       entitlements:
         isAllowed: 1
       isAssetStorePackage: 0
-      datePublishedTicks: 637550675510000000
+      datePublishedTicks: 637605791650000000
       documentationUrl: 
       hasRepository: 1
       repository:
         type: git
         url: git+https://github.com/Unity-Technologies/Graphics.git
-        revision: 7ff8fd444c179fd9bb380d61f4865be6935b47dd
+        revision: 73f32e8fcc2d0cbf3b73a16a5e30eb5cede41576
         path: 
-    - packageId: com.unity.shadergraph@10.5.0
+    - packageId: com.unity.shadergraph@10.5.1
       testable: 0
       isDirectDependency: 0
-      version: 10.5.0
+      version: 10.5.1
       source: 1
       resolvedPath: D:\Zodiac Ram\Sam Hits Things\r_Sam\Sam Hits Things\Sam Hits
-        Things\Library\PackageCache\com.unity.shadergraph@10.5.0
+        Things\Library\PackageCache\com.unity.shadergraph@10.5.1
       assetPath: Packages/com.unity.shadergraph
       name: com.unity.shadergraph
       displayName: Shader Graph
@@ -3676,6 +3624,7 @@ m_PackageAssets:
         - 7.5.2
         - 7.5.3
         - 7.6.0
+        - 7.7.0
         - 8.0.1
         - 8.1.0
         - 8.2.0
@@ -3693,17 +3642,19 @@ m_PackageAssets:
         - 10.3.2
         - 10.4.0
         - 10.5.0
+        - 10.5.1
         compatible:
         - 10.5.0
-        verified: 10.5.0
+        - 10.5.1
+        verified: 10.5.1
       dependencies:
       - name: com.unity.render-pipelines.core
-        version: 10.5.0
+        version: 10.5.1
       - name: com.unity.searcher
         version: 4.3.2
       resolvedDependencies:
       - name: com.unity.render-pipelines.core
-        version: 10.5.0
+        version: 10.5.1
       - name: com.unity.ugui
         version: 1.0.0
       - name: com.unity.modules.ui
@@ -3725,13 +3676,13 @@ m_PackageAssets:
       entitlements:
         isAllowed: 1
       isAssetStorePackage: 0
-      datePublishedTicks: 637550676160000000
+      datePublishedTicks: 637605793850000000
       documentationUrl: 
       hasRepository: 1
       repository:
         type: git
         url: git+https://github.com/Unity-Technologies/Graphics.git
-        revision: 7ff8fd444c179fd9bb380d61f4865be6935b47dd
+        revision: 73f32e8fcc2d0cbf3b73a16a5e30eb5cede41576
         path: 
     - packageId: com.unity.settings-manager@1.0.3
       testable: 0
