@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class ElementButton : MonoBehaviour
 {
     [SerializeField] ElementMasterHandler master;
+    [SerializeField] Sprite buttonEmpty, buttonEarth;
 
     const string ELEMENT_ENCOUNTER = "EButton_Element encounter";
     const string DISPLAY_EARTH_BOOL = "shouldDisplayEarth";
@@ -31,6 +32,7 @@ public class ElementButton : MonoBehaviour
     {
         anim = GetComponent<Animator>();
         image = GetComponent<Image>();
+        anim.enabled = false;
     }
 
     private void Start()
@@ -41,9 +43,12 @@ public class ElementButton : MonoBehaviour
     public void UpdateButton()
     {
         anchorElement = master.AnchorElement;
-        
+
         if (anchorElement == heldElement) return;
-        else if(anchorElement != Element.None && heldElement == Element.None)
+
+        anim.enabled = true;
+
+        if(anchorElement != Element.None && heldElement == Element.None)
         {
             UpdateButtonNoElementHeld();
         }
@@ -80,6 +85,7 @@ public class ElementButton : MonoBehaviour
     }
     public void OnPressed()
     {
+        //anim.enabled = true;
         if(heldElement == Element.None && anchorElement != Element.None)
         {
             SetAnimStringsByElement(anchorElement);
@@ -98,7 +104,17 @@ public class ElementButton : MonoBehaviour
             master.SetDemonElement(Element.None);
             heldElement = Element.None;
         }
+    }
 
-        //UpdateButton();
+    public void OnDemonRetrieved()
+    {
+        anim.enabled = false;
+        image.sprite = ElementToSprite(heldElement);
+    }
+
+    private Sprite ElementToSprite(Element element)
+    {
+        if(element == Element.Earth) { return buttonEarth; }
+        else { return buttonEmpty; }
     }
 }

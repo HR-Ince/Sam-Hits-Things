@@ -1,63 +1,41 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Events;
+﻿using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerTargettingManager : MonoBehaviour
 {
-    [SerializeField] float maxMagnitude = 10f, minimumDrawPercentage = 5f;
+    [SerializeField] float maxDraw = 10f, minDrawX, minDrawY, minimumDrawPercentage = 0.2f;
+    [SerializeField] Image debugPress;
 
-    public float DrawPercentage { get { return drawPercentage; } }
     public Vector3 DirectionVector { get { return dirVector; } }
-    public Vector3 TargetVector { get { return targetVector; } }
-    public Vector3 TargettingOrigin { get { return targettingOrigin; } }
+    public float DrawPercentage { get { return drawPercentage; } }
 
-    protected Vector3 targettingOrigin;
-    protected Vector3 dirVector;
-
-    private float cameraDepth;
+    private Vector3 dirVector;
     private float drawPercentage;
-    private Vector3 targetVector;
-    private Vector3 pressedPosWorld;
+    private Vector3 pressPos;
 
-    internal Camera cam;
-
-    private void Awake()
-    {
-        FetchExternalVariables();
-    }
-    internal void FetchExternalVariables()
-    {
-        cam = Camera.main;
-        cameraDepth = -Camera.main.transform.position.z;
-    }
-    public void SetupTargetting(Vector3 origin, Vector3 inputPos)
+    public void SetupTargetting(Vector3 inputPos)
     {
         ResetValues();
-        SetTargettingOrigin(origin);
         SetPressPos(inputPos);
-    }
-    private void SetTargettingOrigin(Vector3 origin)
-    {
-        targettingOrigin = origin;
     }
     private void SetPressPos(Vector3 inputPos)
     {
-        pressedPosWorld = cam.ScreenToWorldPoint(new Vector3(inputPos.x, inputPos.y, cameraDepth));
+        pressPos = inputPos;
+        debugPress.transform.position = inputPos;
     }
     public void AdjustTargetting(Vector3 inputPos)
     {
-        Vector3 inputPosWorld = cam.ScreenToWorldPoint(new Vector3(inputPos.x, inputPos.y, cameraDepth));
-        Vector3 posDif = Vector3.ClampMagnitude(pressedPosWorld - inputPosWorld, maxMagnitude);
-        targetVector = targettingOrigin + posDif;
-        targetVector = new Vector3(targetVector.x, Mathf.Max(targettingOrigin.y, targetVector.y));
+        float xDraw = (pressPos.x - inputPos.x) / 40; // Division to "convert" from screen units
+        xDraw = Mathf.Clamp(xDraw, minDrawX, maxDraw);
+        float yDraw = (pressPos.y - inputPos.y) / 20; // Division to "convert" from screen units
+        yDraw = Mathf.Clamp(yDraw, minDrawY, maxDraw);
+        Vector3 drawVector = new Vector3(xDraw, yDraw);
 
-        float difMagnitude = Mathf.Abs(Mathf.Clamp(Vector3.Distance(pressedPosWorld, inputPosWorld), 0, maxMagnitude));
-        dirVector = posDif / difMagnitude;
-        if (float.IsNaN(dirVector.x) || float.IsNaN(dirVector.y))
-            dirVector = Vector3.zero;
-        else
-            dirVector = new Vector3(dirVector.x, dirVector.y, 0);
-        drawPercentage = Mathf.Clamp(difMagnitude / maxMagnitude * 100, 0, 100);
+        float drawLength = Vector2.Distance(Vector2.zero, drawVector);
+
+        drawPercentage = Mathf.Clamp(drawLength / maxDraw, 0, 1);
+
+        dirVector = Vector3.Normalize(drawVector);
     }
     public bool DrawIsSufficient()
     {
@@ -65,7 +43,6 @@ public class PlayerTargettingManager : MonoBehaviour
     }
     private void ResetValues()
     {
-        targetVector = targettingOrigin;
         dirVector = Vector3.zero;
         drawPercentage = 0.0f;
     }

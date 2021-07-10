@@ -44,14 +44,14 @@ public class Grabber : MonoBehaviour
     private void Update()
     {
         if (Vector3.Distance(holdPosTransform.position, heldObject.transform.position) < 0.001f && isMovingToCollect)
-        {
+        {/*
             if(heldObject.transform.parent != null)
             {
                 if(heldObject.transform.parent.TryGetComponent(out PlayerGrabHandler player))
                 {
                     player.ReleaseHeldObject();
                 }
-            }
+            }*/
             heldObject.transform.parent = transform;
             heldObjRB.isKinematic = true;
             isMovingToCollect = false;

@@ -30,7 +30,7 @@ public class LineDrawer : MonoBehaviour
         line.positionCount = lineMaxPoints;
         line.enabled = false;
     }
-    public void ManageTrajectoryLine(float thrustModifier, float additionalThrust, float mass, ForceMode forceMode)
+    public void ManageTrajectoryLine(LaunchData launchData, float thrust, ForceMode forceMode)
     {
         Vector3 targetDirection = targeter.DirectionVector;
 
@@ -38,13 +38,12 @@ public class LineDrawer : MonoBehaviour
         line.enabled = true;
 
         float forceDuration = forceMode == ForceMode.Force || forceMode == ForceMode.Acceleration ? Time.fixedDeltaTime : 1;
-        float objectMass = forceMode == ForceMode.Impulse || forceMode == ForceMode.Force ? mass : 1;
+        float objectMass = forceMode == ForceMode.Impulse || forceMode == ForceMode.Force ? launchData.Mass : 1;
 
-        float thrust = targeter.DrawPercentage * (thrustModifier + additionalThrust);
-        Vector3 forceVector = targetDirection * thrust;
+        Vector3 forceVector = targetDirection * (targeter.DrawPercentage * thrust);
         Vector3 velocityVector = (forceVector / objectMass) * forceDuration;
 
-        float gravity = -Physics.gravity.y;
+        float gravity = -Physics.gravity.y * launchData.GravityModifier;
         float flightTime = Vector3.Magnitude(velocityVector) / (gravity / 2);
 
         float stepInterval = flightTime / line.positionCount;
@@ -52,7 +51,7 @@ public class LineDrawer : MonoBehaviour
         linePoints.Clear();
 
         float stepTimePassed;
-        Vector3 startingPos = targeter.TargettingOrigin;
+        Vector3 startingPos = targeter.transform.position;
 
         //Calculate full trajectory
         for(int i = 0; i < lineMaxPoints; i++)
