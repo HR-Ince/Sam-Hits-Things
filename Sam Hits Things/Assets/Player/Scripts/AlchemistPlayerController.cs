@@ -22,13 +22,15 @@ public class AlchemistPlayerController : MonoBehaviour
     {
         FetchExternalVariables();
 
+        register.PlayerOne = gameObject;
+    }
+    private void Start()
+    {
         if (demon.activeInHierarchy)
         {
             demon.SetActive(false);
             demon.transform.position = transform.position;
         }
-
-        register.PlayerOne = gameObject;
     }
     private void FetchExternalVariables()
     {

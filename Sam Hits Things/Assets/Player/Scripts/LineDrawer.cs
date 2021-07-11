@@ -6,7 +6,8 @@ public class LineDrawer : MonoBehaviour
 {
     [SerializeField] float lineWidth = 1f;
     [SerializeField] int percentageOfTrajectoryToDraw = 10;
-    [SerializeField] int lineMaxPoints = 10;
+    [SerializeField] int linePointsPerUnit = 10;
+    [SerializeField] LayerMask wallMask;
 
     private PlayerTargettingManager targeter;
     private LineRenderer line;
@@ -27,7 +28,6 @@ public class LineDrawer : MonoBehaviour
     {
         line.startWidth = lineWidth;
         line.endWidth = lineWidth;
-        line.positionCount = lineMaxPoints;
         line.enabled = false;
     }
     public void ManageTrajectoryLine(LaunchData launchData, float thrust, ForceMode forceMode)
@@ -36,25 +36,26 @@ public class LineDrawer : MonoBehaviour
 
         if (float.IsNaN(targetDirection.x) || float.IsNaN(targetDirection.y)) { return; }
         line.enabled = true;
-
+        
         float forceDuration = forceMode == ForceMode.Force || forceMode == ForceMode.Acceleration ? Time.fixedDeltaTime : 1;
         float objectMass = forceMode == ForceMode.Impulse || forceMode == ForceMode.Force ? launchData.Mass : 1;
-
+        
         Vector3 forceVector = targetDirection * (targeter.DrawPercentage * thrust);
         Vector3 velocityVector = (forceVector / objectMass) * forceDuration;
+        
 
         float gravity = -Physics.gravity.y * launchData.GravityModifier;
         float flightTime = Vector3.Magnitude(velocityVector) / (gravity / 2);
-
+        line.positionCount = Mathf.FloorToInt(flightTime * linePointsPerUnit);
         float stepInterval = flightTime / line.positionCount;
 
         linePoints.Clear();
-
+        
         float stepTimePassed;
-        Vector3 startingPos = targeter.transform.position;
-
+        Vector3 startingPos = transform.position;
+        
         //Calculate full trajectory
-        for(int i = 0; i < lineMaxPoints; i++)
+        for(int i = 0; i < line.positionCount; i++)
         {
             stepTimePassed = stepInterval * i;
 
@@ -62,26 +63,11 @@ public class LineDrawer : MonoBehaviour
             float yPos = startingPos.y + velocityVector.y * stepTimePassed - 0.5f * gravity * stepTimePassed * stepTimePassed;
 
             Vector3 newPoint = new Vector3(xPos, yPos, 0);
-
+            
             linePoints.Add(newPoint);
         }
-
+        line.positionCount = linePoints.Count;
         line.SetPositions(linePoints.ToArray());
-
-        //Calculate trajectory to draw
-        /*
-        for(int j = 0; j < linePoints.Count; j++)
-        {
-            line.positionCount++;
-
-            if (j > 1 && Physics.Linecast(linePoints[j - 1], linePoints[j], out RaycastHit hit))
-            {
-                line.SetPosition(j, hit.point);
-                break;
-            }
-
-            line.SetPosition(j, linePoints[j]);
-        }*/
     }
     public void ManageBasicLine(Vector3 targetDirection, float length)
     {
