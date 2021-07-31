@@ -5,6 +5,11 @@ public class CrucibleElementHandler : MonoBehaviour
     [SerializeField] Element heldElement;
     [SerializeField] ElementMasterHandler data;
     [SerializeField] Sprite PH_None, PH_earth;
+    [SerializeField] ActiveObjects actives;
+
+    public bool HasElement { get { return heldElement != Element.None; } }
+
+    private GameObject demonHere;
 
     private SpriteRenderer _renderer;
 
@@ -22,6 +27,7 @@ public class CrucibleElementHandler : MonoBehaviour
     public void OnSphereDetection()
     {
         data.SetElementFrom(this, heldElement);
+        //actives.SetActiveAnchor(this);
     }
 
     public void SetElement(Element element)
@@ -33,5 +39,6 @@ public class CrucibleElementHandler : MonoBehaviour
     public void onSphereLeaving()
     {
         data.ClearActiveCrucible();
+        //actives.SetActiveAnchor(null);
     }
 }

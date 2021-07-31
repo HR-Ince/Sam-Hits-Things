@@ -7,9 +7,10 @@ public class ChaplainPlayerController : MonoBehaviour
     [SerializeField] int noOfDemons;
     [SerializeField] float throwStrength;
     [SerializeField] GameObject demon;
+    [SerializeField] GameObject demonContextMenu;
     [SerializeField] Vector3 throwOriginOffset, summonOriginOffset;
     [SerializeField] PlayerStateRegister register;
-    [SerializeField] ActiveObjects demonHolder;
+    [SerializeField] ActiveObjects actives;
 
     private bool goodPress = false;
 
@@ -28,17 +29,34 @@ public class ChaplainPlayerController : MonoBehaviour
         FetchExternalVariables();
 
         register.PlayerOne = gameObject;
+        SetupDemons();
+    }
 
+    private void SetupDemons()
+    {
         demons = new List<GameObject>();
         demons.Add(demon);
-        while(demons.Count < noOfDemons)
+        while (demons.Count < noOfDemons)
         {
             var temp = Instantiate(demon);
             demons.Add(temp);
-            temp.SetActive(false);
         }
-        if (demons.Count > 0) { SetDemonVariables(demons[0]); }
+        if (demons.Count > 0)
+        {
+            SetDemonVariables(demons[0]);
+
+            foreach (GameObject demon in demons)
+            {
+                if (demon.TryGetComponent(out DemonController controller))
+                {
+                    controller.SetContextMenu(demonContextMenu);
+                }
+
+                demon.SetActive(false);
+            }
+        }
     }
+
     private void Start()
     {
         if (demon.activeInHierarchy)
@@ -105,7 +123,7 @@ public class ChaplainPlayerController : MonoBehaviour
 
     public void RetrieveDemon()
     {
-        SetDemonVariables(demonHolder.ActiveDemon);
+        SetDemonVariables(actives.ActiveDemon);
         demon.SetActive(false);
         demons.Add(demon);
     }

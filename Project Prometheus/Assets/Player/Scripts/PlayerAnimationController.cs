@@ -23,7 +23,7 @@ public class PlayerAnimationController : MonoBehaviour
 
     public void PlayReady()
     {
-        playerAnim.Play(PLAYER_READY); 
+        playerAnim.Play(PLAYER_READY);
     }
 
     public void PlayThrow()

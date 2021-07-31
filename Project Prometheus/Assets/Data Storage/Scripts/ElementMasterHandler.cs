@@ -7,7 +7,7 @@ public class ElementMasterHandler : ScriptableObject
 {
     [SerializeField] GameEvent onTriggered;
     
-    public bool hasActiveAnchor { get { return anchor != null; } }
+    public bool HasActiveAnchor { get { return anchor != null; } }
     public Element AnchorElement { get { return anchorElement; } }
     public Element DemonElement { get { return demonElement; } }
 

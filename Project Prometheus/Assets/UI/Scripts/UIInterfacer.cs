@@ -1,11 +1,11 @@
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 
-[RequireComponent(typeof(Collider))]
 public class UIInterfacer : MonoBehaviour
 {
-    [SerializeField] GameObject uiObject;
-    [SerializeField] Vector3 uiOffset;
+    [SerializeField] ContextMenuManager contextMenu;
+    [SerializeField] Vector3 menuOffset;
     [SerializeField] UnityEvent onClick;
     [SerializeField] PlayerInput player;
 
@@ -18,9 +18,9 @@ public class UIInterfacer : MonoBehaviour
 
     private void OnMouseDown()
     {
-        uiObject.transform.position = cam.WorldToScreenPoint(transform.position + uiOffset);
-        uiObject.SetActive(true);
-        print("button on");
+        print(gameObject.name + " pressed.");
+        contextMenu.transform.position = cam.WorldToScreenPoint(transform.position + menuOffset);
+        contextMenu.ActivateMenu();
         if (onClick != null)
             onClick.Invoke();
         player.WasUIClicked = true;
@@ -29,5 +29,6 @@ public class UIInterfacer : MonoBehaviour
     private void OnMouseUp()
     {
         player.WasUIClicked = false;
+        EventSystem.current.SetSelectedGameObject(contextMenu.gameObject);
     }
 }

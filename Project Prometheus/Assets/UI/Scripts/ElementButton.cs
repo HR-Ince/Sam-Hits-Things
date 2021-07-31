@@ -52,7 +52,7 @@ public class ElementButton : MonoBehaviour
         {
             UpdateButtonNoElementHeld();
         }
-        else if(master.hasActiveAnchor && anchorElement == Element.None && heldElement != Element.None)
+        else if(master.HasActiveAnchor && anchorElement == Element.None && heldElement != Element.None)
         {
             UpdateButtonEmptyAnchor();
         }
@@ -92,7 +92,7 @@ public class ElementButton : MonoBehaviour
             heldElement = anchorElement;
             master.SetActiveAnchorElement(Element.None);
         }
-        else if(master.hasActiveAnchor && anchorElement == Element.None && heldElement != Element.None)
+        else if(master.HasActiveAnchor && anchorElement == Element.None && heldElement != Element.None)
         {
             SetAnimStringsByElement(heldElement);
 
