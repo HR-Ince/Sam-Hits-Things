@@ -51,7 +51,7 @@ public class AlchemistPlayerController : MonoBehaviour
 
     private void Update()
     {
-        if(!demonThrown && input.Pressed)
+        if(!demonThrown && input.GamePressed)
         {
             goodPress = true;
             targeter.SetupTargetting(input.PressPos);
@@ -88,7 +88,7 @@ public class AlchemistPlayerController : MonoBehaviour
             goodPress = false;
         }
 
-        if(demonThrown && input.Pressed)
+        if(demonThrown && input.GamePressed)
         {
             anim.PlayRecall();
         }

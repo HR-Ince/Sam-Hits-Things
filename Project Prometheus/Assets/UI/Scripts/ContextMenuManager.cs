@@ -1,28 +1,42 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class ContextMenuManager : MonoBehaviour
 {
     [SerializeField] GameObject defaultObject;
-    [SerializeField] GameObject[] conditionalObjects;
     [SerializeField] ActiveObjects actives;
+    [SerializeField] GameObject sampleButton;
 
-    [SerializeField] private bool[] conditionsMet;
+    public Dictionary<GameObject, bool> conditions = new Dictionary<GameObject, bool>();
+    private List<GameObject> conditionalObjects = new List<GameObject>();
+
+    private PlayerInput input;
 
     private void Awake()
     {
-        conditionsMet = new bool[conditionalObjects.Length];
+        OrganiseCoditionals();
+        input = FindObjectOfType<PlayerInput>();
         DeactivateMenu();
+    }
+    private void OrganiseCoditionals()
+    {
+        var temp = GetComponentsInChildren<CustomButton>();
+        for(int i = 0; i < temp.Length; i++)
+        {
+            if(temp[i].gameObject == defaultObject) { continue; }
+            conditions.Add(temp[i].gameObject, false);
+            conditionalObjects.Add(temp[i].gameObject);
+        }
     }
 
     public void ActivateMenu()
     {
-        HandleMenuActivation();
-        defaultObject.SetActive(true);
-        HandleConditionalObjects();
+        HandleActiveMenu();
+        if (defaultObject != null) { defaultObject.SetActive(true); }
+        SetActiveConditionals();
     }
-
-    private void HandleMenuActivation()
+    private void HandleActiveMenu()
     {
         if (actives.ActiveMenu == null) 
         { 
@@ -35,21 +49,31 @@ public class ContextMenuManager : MonoBehaviour
             actives.SetActiveMenu(this);
         }
     }
-
-    private void HandleConditionalObjects()
+    public void SetConditional(string name, bool value)
     {
-        if(conditionalObjects.Length <= 0 || conditionsMet.Length <= 0) { return; }
-        for (int i = 0; i < conditionalObjects.Length; i++)
+        foreach(GameObject obj in conditions.Keys)
         {
-            
-            if (conditionsMet[i])
-                conditionalObjects[i].SetActive(true);
+            if(obj.name == name) 
+            { 
+                conditions[obj] = value;
+                return;
+            }
+        }
+
+        print("Context Menu Manager could not find an object with name " + name);
+    }
+    private void SetActiveConditionals()
+    {
+        foreach(KeyValuePair<GameObject, bool> pair in conditions)
+        {
+            pair.Key.SetActive(pair.Value);
         }
     }
 
-    public void SetConditionMet(int conditionNo, bool value)
+    private void Update()
     {
-        conditionsMet[conditionNo] = value;
+        if (input.GamePressed)
+            DeactivateMenu();
     }
 
     public void DeactivateMenu()

@@ -6,7 +6,8 @@ public class AnchorController : MonoBehaviour
     [SerializeField] Element heldElement;
     [SerializeField] Sprite PH_None, PH_earth;
 
-    public bool HoldingElement { get { return heldElement != Element.None; } }
+    public bool IsHoldingElement { get { return heldElement != Element.None; } }
+    public Element HeldElement { get { return heldElement; } }
 
     private SpriteRenderer _renderer;
 
@@ -36,5 +37,11 @@ public class AnchorController : MonoBehaviour
         {
             demonController.ResetAnchorContact();
         }
+    }
+
+    public void Infuse(Element element)
+    {
+        heldElement = element;
+        UpdateSprite();
     }
 }

@@ -5,7 +5,6 @@ using UnityEngine;
 public class LineDrawer : MonoBehaviour
 {
     [SerializeField] float lineWidth = 1f;
-    [SerializeField] int percentageOfTrajectoryToDraw = 10;
     [SerializeField] int linePointsPerUnit = 10;
     [SerializeField] LayerMask wallMask;
 

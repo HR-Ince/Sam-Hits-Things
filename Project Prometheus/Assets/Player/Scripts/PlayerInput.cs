@@ -6,18 +6,19 @@ public class PlayerInput : MonoBehaviour
     [SerializeField] bool useTouch = false;
     [SerializeField] MouseOverUIChecker uiCheck;
 
-    public bool WasUIClicked { set { wasUIClicked = value; } }
-    public bool Pressed { get { return pressed; } }
+    public int TouchID { get { return touchID; } }
+    public bool GamePressed { get { return gamePressed; } }
+    public bool UIPressed { get { return uiPressed; } }
     public bool PressHeld { get { return pressHeld; } }
     public bool PressReleased { get { return pressReleased; } }
     public Vector3 PressPos { get { return pressPos; } }
 
-    private bool pressed;
+    private int touchID;
+    private bool gamePressed;
+    private bool uiPressed;
     private bool pressHeld;
     private bool pressReleased;
     private Vector3 pressPos;
-
-    private bool wasUIClicked;
 
     private delegate void Controls();
 
@@ -36,12 +37,22 @@ public class PlayerInput : MonoBehaviour
     }
     private void MouseInput()
     {
-        if (uiCheck.IsOverUI) { return; }
+        pressPos = Input.mousePosition;
 
-        pressed = Input.GetMouseButtonDown(0) && !wasUIClicked;
+        if (uiCheck.GetIsOverUI(pressPos))
+        {
+            gamePressed = false;
+            uiPressed = Input.GetMouseButtonDown(0);
+        }
+        else
+        {
+            uiPressed = false;
+            gamePressed = Input.GetMouseButtonDown(0);
+        }
+
         pressHeld = Input.GetMouseButton(0);
         pressReleased = Input.GetMouseButtonUp(0);
-        pressPos = Input.mousePosition;
+
     }
     private void TouchInput()
     {
@@ -49,11 +60,20 @@ public class PlayerInput : MonoBehaviour
         {
             Touch touch = Input.GetTouch(0);
 
-            pressed = touch.phase == TouchPhase.Began;
+            touchID = touch.fingerId;
+            pressPos = touch.position;
+
+            if (uiCheck.GetIsOverUI(pressPos))
+            {
+                uiPressed = touch.phase == TouchPhase.Began;
+            }
+            else
+            {
+                gamePressed = touch.phase == TouchPhase.Began;
+            }
+
             pressHeld = touch.phase == TouchPhase.Moved;
             pressReleased = touch.phase == TouchPhase.Ended;
-            pressPos = touch.position;
-        }
-            
+        }   
     }
 }

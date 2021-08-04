@@ -1,7 +1,5 @@
 using UnityEngine;
 
-public enum Element { None, Wind, Earth, Fire, Water }
-
 [CreateAssetMenu]
 public class ElementMasterHandler : ScriptableObject
 {
@@ -11,7 +9,7 @@ public class ElementMasterHandler : ScriptableObject
     public Element AnchorElement { get { return anchorElement; } }
     public Element DemonElement { get { return demonElement; } }
 
-    private PlayerElementHandler demon;
+    private DemonElementHandler demon;
     private CrucibleElementHandler anchor;
     private Element anchorElement;
     private Element demonElement;
@@ -22,7 +20,7 @@ public class ElementMasterHandler : ScriptableObject
         demonElement = Element.None;
     }
 
-    public void SetDemon(PlayerElementHandler handler)
+    public void SetDemon(DemonElementHandler handler)
     {
         demon = handler;
     }

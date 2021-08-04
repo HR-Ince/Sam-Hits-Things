@@ -90,6 +90,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   contextMenu: {fileID: 6959409203272013402, guid: 9d7146bc5a97cdc4b9634336b4346f5f,
     type: 3}
-  menuOffset: {x: 50, y: 50, z: 0}
   spriteOffset: {x: 0, y: 0, z: 0}
+  menuOffset: {x: 100, y: 50, z: 0}
+  biggestButton: {fileID: 6959409203272013402, guid: 9d7146bc5a97cdc4b9634336b4346f5f,
+    type: 3}
   scale: {x: 0.5, y: 0.5, z: 0.5}
+  actives: {fileID: 11400000, guid: 9818e3ea3fb40de40bee9f95793ee450, type: 2}

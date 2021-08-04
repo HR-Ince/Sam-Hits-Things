@@ -1,17 +1,19 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class DemonUIInterface : BaseUIInterface
+public class DemonUIInterface : BaseUIInterface, IPointerDownHandler
 {
-    [SerializeField] Vector3 spriteOffset;
-    [SerializeField] Vector3 scale;
+    [SerializeField] ActiveObjects actives;
 
-    private Camera cam;
-    private ContextMenuManager menuManager;
     private GameObject host;
+    private DemonController controller;
+    private DemonElementHandler elementHandler;
 
     public void SetHost(GameObject value)
     {
         host = value;
+        elementHandler = host.GetComponent<DemonElementHandler>();
+        controller = host.GetComponent<DemonController>();
     }
     public void SetContextMenu(GameObject obj)
     {
@@ -19,19 +21,32 @@ public class DemonUIInterface : BaseUIInterface
         menuManager = menu.GetComponent<ContextMenuManager>();
     }
 
-    private void Awake()
+    private void Update()
     {
-        cam = Camera.main;
-        transform.localScale = scale;
-    }
-    public void Activate()
-    {
-        gameObject.SetActive(true);
         transform.position = cam.WorldToScreenPoint(host.transform.position + spriteOffset);
     }
 
-    public void SetConditional(int conditionalNo, bool value)
+    public new void OnPointerDown(PointerEventData data)
     {
-        menuManager.SetConditionMet(conditionalNo, value);
+        base.OnPointerDown(data);
+        actives.SetActiveDemon(host);
+    }
+
+    protected override void EvaluateConditionals()
+    {
+        SetAnchorConditionals(controller.MyAnchor);
+    }
+
+    private void SetAnchorConditionals(AnchorController anchor)
+    {
+        if(anchor == null)
+        {
+            menuManager.SetConditional("Button_ElementIn", false);
+            menuManager.SetConditional("Button_ElementOut", false); 
+            return;
+        }
+
+        menuManager.SetConditional("Button_ElementIn", anchor.IsHoldingElement);
+        menuManager.SetConditional("Button_ElementOut", !anchor.IsHoldingElement && elementHandler.IsHoldingElement);
     }
 }

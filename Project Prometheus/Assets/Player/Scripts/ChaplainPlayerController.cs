@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -31,7 +30,6 @@ public class ChaplainPlayerController : MonoBehaviour
         register.PlayerOne = gameObject;
         SetupDemons();
     }
-
     private void SetupDemons()
     {
         demons = new List<GameObject>();
@@ -40,6 +38,7 @@ public class ChaplainPlayerController : MonoBehaviour
         {
             var temp = Instantiate(demon);
             demons.Add(temp);
+            temp.name = "Demon " + demons.IndexOf(temp);
         }
         if (demons.Count > 0)
         {
@@ -83,7 +82,7 @@ public class ChaplainPlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (demons.Count > 0 && input.Pressed)
+        if (demons.Count > 0 && input.GamePressed)
         {
             SetDemonVariables(demons[0]);
             goodPress = true;
@@ -124,6 +123,7 @@ public class ChaplainPlayerController : MonoBehaviour
     public void RetrieveDemon()
     {
         SetDemonVariables(actives.ActiveDemon);
+        demon.GetComponent<DemonController>().ResetAnchorContact();
         demon.SetActive(false);
         demons.Add(demon);
     }

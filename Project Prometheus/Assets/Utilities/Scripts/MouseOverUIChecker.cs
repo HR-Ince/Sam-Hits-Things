@@ -6,10 +6,6 @@ using UnityEngine.EventSystems;
 [RequireComponent(typeof(GraphicRaycaster))]
 public class MouseOverUIChecker : MonoBehaviour
 {
-    public bool IsOverUI { get { return isOverUI; } }
-
-    private bool isOverUI;
-
     private GraphicRaycaster ray;
     private EventSystem eventSys;
 
@@ -20,18 +16,19 @@ public class MouseOverUIChecker : MonoBehaviour
         eventSys = FindObjectOfType<EventSystem>();
     }
 
-    void Update()
+    public bool GetIsOverUI(Vector3 inputPos)
     {
+
         PointerEventData pointData = new PointerEventData(eventSys);
-        pointData.position = Input.mousePosition;
+        pointData.position = inputPos;
 
         List<RaycastResult> results = new List<RaycastResult>();
 
         ray.Raycast(pointData, results);
 
         if (results.Count != 0)
-            isOverUI = true;
+            return true;
         else
-            isOverUI = false;
+            return false;
     }
 }

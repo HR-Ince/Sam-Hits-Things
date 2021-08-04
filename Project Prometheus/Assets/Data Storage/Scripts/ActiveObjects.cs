@@ -10,18 +10,16 @@ public class ActiveObjects : ScriptableObject
 
     public GameObject ActiveDemon { get { return activeDemon; } }
     public void SetActiveDemon(GameObject demon) { activeDemon = demon; }
-
-    [SerializeField] private GameObject activeDemon;
+    private GameObject activeDemon;
 
     public ContextMenuManager ActiveMenu { get { return activeMenu; } }
     public void SetActiveMenu(ContextMenuManager menu) { activeMenu = menu; }
-
-    [SerializeField] private ContextMenuManager activeMenu;
+    private ContextMenuManager activeMenu;
 
     public AnchorController[] ActiveAnchors { get { return activeAnchors.ToArray(); } }
     public void AddActiveAnchor(AnchorController anchor) { activeAnchors.Add(anchor); }
     public void RemoveActiveAnchor(AnchorController anchor) { activeAnchors.Remove(anchor); }
-    private List<AnchorController> activeAnchors;
+    private List<AnchorController> activeAnchors = new List<AnchorController>();
 
     private void OnEnable()
     {
