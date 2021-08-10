@@ -1,46 +1,33 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Collider))]
-public class AnchorController : MonoBehaviour
+public class AnchorController : ElementVesselController
 {
     [SerializeField] Element heldElement;
-    [SerializeField] Sprite PH_None, PH_earth;
+    [SerializeField] protected Sprite noneSprite, earthSprite;
 
-    public bool IsHoldingElement { get { return heldElement != Element.None; } }
     public Element HeldElement { get { return heldElement; } }
 
-    private SpriteRenderer _renderer;
+    private DemonElementHandler myDemon;
 
-    private void Awake()
+    public void SetDemon(DemonElementHandler demon) { myDemon = demon; }
+
+    public override ElementVesselController ReportSelf()
     {
-        _renderer = GetComponentInChildren<SpriteRenderer>();
-        UpdateSprite();
+        return this;
     }
 
-    private void UpdateSprite()
+    protected override void UpdateSprite()
     {
-        if (heldElement == Element.None) { _renderer.sprite = PH_None; }
-        if (heldElement == Element.Earth) { _renderer.sprite = PH_earth; }
-    }
+        if (heldElement == Element.Earth) { _renderer.sprite = earthSprite; }
+        else { _renderer.sprite = noneSprite; }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        if(other.gameObject.TryGetComponent(out DemonController demonController))
-        {
-            demonController.SetNearbyAnchor(this);
-        }
     }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.gameObject.TryGetComponent(out DemonController demonController))
-        {
-            demonController.ResetAnchorContact();
-        }
-    }
-
-    public void Infuse(Element element)
-    {
+    public override bool CanReceiveElement()
+    { return myDemon.IsHoldingElement; }
+    public override bool CanGiveElement()
+    { return heldElement != Element.None; }
+    public override void ReceiveElement(Element element)
+    { 
         heldElement = element;
         UpdateSprite();
     }

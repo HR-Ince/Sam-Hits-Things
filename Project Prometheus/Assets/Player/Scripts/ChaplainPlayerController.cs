@@ -1,15 +1,21 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class ChaplainPlayerController : MonoBehaviour
 {
-    [SerializeField] int noOfDemons;
+    [Header("Human things")]
     [SerializeField] float throwStrength;
+    [Header("Demon things")]
+    [SerializeField] int noOfDemons;
     [SerializeField] GameObject demon;
     [SerializeField] GameObject demonContextMenu;
-    [SerializeField] Vector3 throwOriginOffset, summonOriginOffset;
+    [SerializeField] Vector3 throwOriginOffset;
+    [Header("Externals")]
     [SerializeField] PlayerStateRegister register;
     [SerializeField] ActiveObjects actives;
+
+    public GameObject[] Demons { get { return demons.ToArray(); } }
 
     private bool goodPress = false;
 
@@ -122,10 +128,17 @@ public class ChaplainPlayerController : MonoBehaviour
 
     public void RetrieveDemon()
     {
-        SetDemonVariables(actives.ActiveDemon);
-        demon.GetComponent<DemonController>().ResetAnchorContact();
-        demon.SetActive(false);
+        ManageDemon();
         demons.Add(demon);
+    }
+
+    private void ManageDemon()
+    {
+        SetDemonVariables(actives.ActiveDemon);
+        demon.GetComponent<DemonController>().ResetAssociations();
+        actives.SetActiveShrine(null);
+        demonLaunchData.Rigidbody.drag = demonLaunchData.DefaultDrag;
+        demon.SetActive(false);
     }
 }
 

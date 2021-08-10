@@ -30,7 +30,7 @@ public class DemonElementHandler : MonoBehaviour
         airMod = GetComponent<DemonAirFormMod>();
     }
 
-    public void Infuse(Element element)
+    public void HandleElement(Element element)
     {
         heldElement = element;
         _renderer.sprite = ElementToSprite(element);
@@ -59,7 +59,7 @@ public class DemonElementHandler : MonoBehaviour
         airMod.enabled = true;
     }
 
-    public void ClearElement()
+    private void ClearElement()
     {
         airMod.enabled = false;
         rB.mass = defaultMass;

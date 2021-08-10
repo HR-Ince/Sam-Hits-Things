@@ -6,18 +6,23 @@ public class PlayerElementTracker : MonoBehaviour
 {
     [SerializeField] ChaplainElementHandler elementHandler;
     [SerializeField] Sprite defaultSprite, earthSprite;
-    private List<Element> elementsInLevel;
+
     private Image[] icons;
 
     private int nextIndex;
 
     private void Awake()
     {
+        EnableIconsFromAnchors();
+    }
+    private void EnableIconsFromAnchors()
+    {
         AnchorController[] anchors = FindObjectsOfType<AnchorController>();
+        List<Element> elementsInLevel = new List<Element>();
 
-        elementsInLevel = new List<Element>();
-        foreach(AnchorController anchor in anchors)
+        foreach (AnchorController anchor in anchors)
         {
+            if(anchor.HeldElement == Element.None) { continue; }
             if (!elementsInLevel.Contains(anchor.HeldElement))
             {
                 elementsInLevel.Add(anchor.HeldElement);
@@ -26,9 +31,9 @@ public class PlayerElementTracker : MonoBehaviour
 
         icons = GetComponentsInChildren<Image>();
 
-        for(int i = 0; i < icons.Length; i++)
+        for (int i = 0; i < icons.Length; i++)
         {
-            if(i < elementsInLevel.Count)
+            if (i < elementsInLevel.Count)
                 icons[i].gameObject.SetActive(true);
             else
                 icons[i].gameObject.SetActive(false);
@@ -37,7 +42,7 @@ public class PlayerElementTracker : MonoBehaviour
 
     public void HandleElementChange()
     {
-        if (elementHandler.HeldElements.Length > nextIndex)
+        if (elementHandler.DisplayElements.Count > nextIndex)
         {
             ActivateElementIcon();
         }
@@ -47,7 +52,7 @@ public class PlayerElementTracker : MonoBehaviour
 
     private void ActivateElementIcon()
     {
-        Element newElement = elementHandler.HeldElements[nextIndex];
+        Element newElement = elementHandler.DisplayElements[nextIndex];
         icons[nextIndex].sprite = ElementToSprite(newElement);
         nextIndex++;
     }

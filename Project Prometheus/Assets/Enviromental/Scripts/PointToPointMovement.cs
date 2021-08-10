@@ -21,23 +21,13 @@ public class PointToPointMovement : MonoBehaviour
     private float tolerance;
     private int currentPointIndex;
     private PathType pathCache;
-    private Vector3[] currentPoints;
+    [SerializeField] private Vector3[] currentPoints;
     private Vector3 currentTarget;
 
     private void Start()
     {
-        currentPoints = new Vector3[points.Length];
-        for (int i = 0; i < points.Length; i++)
-        {
-            currentPoints[i] = points[i].position;
-        }
+        SetDefaultPoints();
 
-        if (currentPoints.Length > 0)
-        {
-            currentPointIndex = 0;
-            currentTarget = currentPoints[currentPointIndex];
-        }
-        
         tolerance = speed * Time.deltaTime;
         pathCache = pathType;
         if (switchType == SwitchType.deactivating)
@@ -45,6 +35,30 @@ public class PointToPointMovement : MonoBehaviour
         else
             powerToggleOn = false;
     }
+
+    private void SetDefaultPoints()
+    {
+        if (pathType == PathType.SinglePoint)
+        {
+            currentPoints = new Vector3[2];
+            currentPoints[0] = transform.position;
+            currentPoints[1] = points[0].position;
+        }
+        else
+        {
+            currentPoints = new Vector3[points.Length];
+            for (int i = 0; i < points.Length; i++)
+            {
+                currentPoints[i] = points[i].position;
+            }
+        }
+        if (currentPoints.Length > 0)
+        {
+            currentPointIndex = 0;
+            currentTarget = currentPoints[currentPointIndex];
+        }
+    }
+
     private void FixedUpdate()
     {
         if (powerToggleOn && !endReached)
@@ -144,22 +158,21 @@ public class PointToPointMovement : MonoBehaviour
         else if(!pathReversed && currentPointIndex == currentPoints.Length - 1 ||
             pathReversed && currentPointIndex == 0)
         {
-            ReversePath();
-            UpdatePointIndex();
             if (pathType == PathType.SinglePath)
             {
                 powerToggleOn = false;
+                endReached = true;
+                return;
             }
-
+            if (pathType == PathType.Looping)
+            {
+                ReversePath();
+                UpdatePointIndex();
+            }
             if(pathReversed && overrideOn)
             {
                 EndOverride();
             }
-        }
-        if(pathType == PathType.SinglePoint)
-        {
-            powerToggleOn = false;
-            endReached = true;
         }
 
         startTime = 0;

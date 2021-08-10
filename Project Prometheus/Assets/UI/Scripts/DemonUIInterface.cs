@@ -30,23 +30,31 @@ public class DemonUIInterface : BaseUIInterface, IPointerDownHandler
     {
         base.OnPointerDown(data);
         actives.SetActiveDemon(host);
+        if(controller.MyVessel != null && controller.MyVessel.ReportSelf() is ShrineController)
+            actives.SetActiveShrine(controller.MyVessel as ShrineController);
     }
 
     protected override void EvaluateConditionals()
     {
-        SetAnchorConditionals(controller.MyAnchor);
+        SetVesselConditionals(controller.MyVessel);
+        SetAbilityConditional();
     }
 
-    private void SetAnchorConditionals(AnchorController anchor)
+    private void SetVesselConditionals(ElementVesselController vessel)
     {
-        if(anchor == null)
+        if(vessel == null)
         {
             menuManager.SetConditional("Button_ElementIn", false);
             menuManager.SetConditional("Button_ElementOut", false); 
             return;
         }
 
-        menuManager.SetConditional("Button_ElementIn", anchor.IsHoldingElement);
-        menuManager.SetConditional("Button_ElementOut", !anchor.IsHoldingElement && elementHandler.IsHoldingElement);
+        menuManager.SetConditional("Button_ElementIn", vessel.CanGiveElement());
+        menuManager.SetConditional("Button_ElementOut", vessel.CanReceiveElement());
+    }
+
+    private void SetAbilityConditional()
+    {
+        menuManager.SetConditional("Button_ElementalDoings", elementHandler.IsHoldingElement);
     }
 }

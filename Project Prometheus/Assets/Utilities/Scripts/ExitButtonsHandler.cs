@@ -5,7 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class ExitButtonsHandler : MonoBehaviour
 {
-    [SerializeField] GameManager gM;
     [SerializeField] WorldState worldState;
 
     private void LoadNextLevel()

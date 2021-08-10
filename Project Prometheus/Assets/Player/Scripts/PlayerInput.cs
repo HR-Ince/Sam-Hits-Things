@@ -16,6 +16,7 @@ public class PlayerInput : MonoBehaviour
     private int touchID;
     private bool gamePressed;
     private bool uiPressed;
+    private bool uiPress;
     private bool pressHeld;
     private bool pressReleased;
     private Vector3 pressPos;
@@ -39,20 +40,11 @@ public class PlayerInput : MonoBehaviour
     {
         pressPos = Input.mousePosition;
 
-        if (uiCheck.GetIsOverUI(pressPos))
-        {
-            gamePressed = false;
-            uiPressed = Input.GetMouseButtonDown(0);
-        }
-        else
-        {
-            uiPressed = false;
-            gamePressed = Input.GetMouseButtonDown(0);
-        }
-
+        if (uiCheck.GetIsOverUI(pressPos)) { uiPressed = Input.GetMouseButtonDown(0); }
+        else { gamePressed = Input.GetMouseButtonDown(0); }
+                
         pressHeld = Input.GetMouseButton(0);
         pressReleased = Input.GetMouseButtonUp(0);
-
     }
     private void TouchInput()
     {

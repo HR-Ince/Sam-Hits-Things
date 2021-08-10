@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -21,24 +22,44 @@ public class ChaplainUIInterface : BaseUIInterface, IPointerDownHandler
         menu = contextMenu;
         menuManager = menu.GetComponent<ContextMenuManager>();
     }
-
-    public new void OnPointerDown(PointerEventData data)
+    public void CreateShrineMenu()
     {
-        base.OnPointerDown(data);
-
+        SetShrineButtons();
+        CreateMenu();
     }
-
     protected override void EvaluateConditionals()
     {
-
+        SetElementButtons();
     }
 
     private void SetElementButtons()
     {
-        List<string> elementStrings = new List<string>();
-        foreach(Element element in elementHandler.HeldElements)
+        SetButtons("Button_Shrine", new List<Element>());
+        if(player.GetComponent<ChaplainPlayerController>().Demons.Length <= 0)
         {
-            elementStrings.Add(element.ToString());
+            SetButtons("Button_", new List<Element>());
+            return;
+        }
+        string conditionalString = "Button_";
+
+        SetButtons(conditionalString, elementHandler.DisplayElements);   
+    }
+    
+    private void SetShrineButtons()
+    {
+        string conditionalString = "Button_Shrine";
+
+        SetButtons(conditionalString, elementHandler.HeldElements);
+    }
+    private void SetButtons(String conditionalString, List<Element> elementList)
+    {
+        foreach (Element element in (Element[])Enum.GetValues(typeof(Element)))
+        {
+            if (element == Element.None) { continue; }
+            if (elementList.Contains(element))
+                menuManager.SetConditional(conditionalString + element.ToString(), true);
+            else
+                menuManager.SetConditional(conditionalString + element.ToString(), false);
         }
     }
 }

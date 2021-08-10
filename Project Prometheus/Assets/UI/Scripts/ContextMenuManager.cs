@@ -1,12 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 public class ContextMenuManager : MonoBehaviour
 {
     [SerializeField] GameObject defaultObject;
     [SerializeField] ActiveObjects actives;
-    [SerializeField] GameObject sampleButton;
 
     public Dictionary<GameObject, bool> conditions = new Dictionary<GameObject, bool>();
     private List<GameObject> conditionalObjects = new List<GameObject>();
@@ -32,9 +30,9 @@ public class ContextMenuManager : MonoBehaviour
 
     public void ActivateMenu()
     {
+        SetActiveConditionals();
         HandleActiveMenu();
         if (defaultObject != null) { defaultObject.SetActive(true); }
-        SetActiveConditionals();
     }
     private void HandleActiveMenu()
     {
@@ -78,7 +76,7 @@ public class ContextMenuManager : MonoBehaviour
 
     public void DeactivateMenu()
     {
-        defaultObject.SetActive(false);
+        if (defaultObject != null) { defaultObject.SetActive(false); }
         foreach (GameObject obj in conditionalObjects)
         {
             obj.SetActive(false);

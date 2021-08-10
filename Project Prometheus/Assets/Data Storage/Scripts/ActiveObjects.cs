@@ -4,10 +4,6 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Data Storage/Active Demon Holder")]
 public class ActiveObjects : ScriptableObject
 {
-    public Element ActiveElement { get { return activeElement; } }
-    public void SetActiveElement(Element element) { activeElement = element; }
-    private Element activeElement;
-
     public GameObject ActiveDemon { get { return activeDemon; } }
     public void SetActiveDemon(GameObject demon) { activeDemon = demon; }
     private GameObject activeDemon;
@@ -16,16 +12,14 @@ public class ActiveObjects : ScriptableObject
     public void SetActiveMenu(ContextMenuManager menu) { activeMenu = menu; }
     private ContextMenuManager activeMenu;
 
-    public AnchorController[] ActiveAnchors { get { return activeAnchors.ToArray(); } }
-    public void AddActiveAnchor(AnchorController anchor) { activeAnchors.Add(anchor); }
-    public void RemoveActiveAnchor(AnchorController anchor) { activeAnchors.Remove(anchor); }
-    private List<AnchorController> activeAnchors = new List<AnchorController>();
+    public ShrineController ActiveShrine { get { return activeShrine; } }
+    public void SetActiveShrine(ShrineController shrine) { activeShrine = shrine; }
+    private ShrineController activeShrine;
 
     private void OnEnable()
     {
-        activeElement = Element.None;
+        activeShrine = null;
         activeDemon = null;
         activeMenu = null;
-        activeAnchors.Clear();
     }
 }

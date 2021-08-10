@@ -4,7 +4,6 @@ using UnityEngine.UI;
 public class PlayerTargettingManager : MonoBehaviour
 {
     [SerializeField] float maxDraw = 10f, minDrawX, minDrawY, minimumDrawPercentage = 0.2f;
-    [SerializeField] Image debugPress;
 
     public Vector3 DirectionVector { get { return dirVector; } }
     public float DrawPercentage { get { return drawPercentage; } }
@@ -21,7 +20,6 @@ public class PlayerTargettingManager : MonoBehaviour
     private void SetPressPos(Vector3 inputPos)
     {
         pressPos = inputPos;
-        debugPress.transform.position = inputPos;
     }
     public void AdjustTargetting(Vector3 inputPos)
     {

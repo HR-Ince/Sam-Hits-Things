@@ -10,8 +10,6 @@ public abstract class BaseUIInterface : MonoBehaviour, IPointerDownHandler
     [SerializeField] Vector3 menuOffset;
     [SerializeField] protected Vector3 scale;
 
-    protected List<bool> myConditionals = new List<bool>();
-
     protected Camera cam;
     protected ContextMenuManager menuManager;
     protected GameObject menu;
@@ -25,7 +23,10 @@ public abstract class BaseUIInterface : MonoBehaviour, IPointerDownHandler
     public void OnPointerDown(PointerEventData data)
     {
         EvaluateConditionals();
-
+        CreateMenu();
+    }
+    protected void CreateMenu()
+    {
         Vector3 offset;
         if (transform.position.x + contextMenu.GetComponent<RectTransform>().rect.width > Screen.width)
         {
@@ -33,10 +34,9 @@ public abstract class BaseUIInterface : MonoBehaviour, IPointerDownHandler
         }
         else
             offset = menuOffset;
-        print(offset);
-        menu.transform.position = transform.position + offset;
-        menu.GetComponent<ContextMenuManager>().ActivateMenu();        
-    }
 
+        menu.transform.position = transform.position + offset;
+        menu.GetComponent<ContextMenuManager>().ActivateMenu();
+    }
     protected abstract void EvaluateConditionals();
 }
