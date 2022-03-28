@@ -6,13 +6,13 @@ public class LineDrawer : MonoBehaviour
 {
     [SerializeField] float lineWidth = 1f;
     [SerializeField] int linePointsPerUnit = 10;
-    [SerializeField] LayerMask wallMask;
+    [SerializeField] LayerMask playerMask;
 
     private Vector3 objectPos;
     private float objectMass;
     private float objectGravityMod;
 
-    private PlayerTargettingManager targeter;
+    private PlayerDrawHandler targeter;
     private LineRenderer line;
     private List<Vector3> linePoints = new List<Vector3>();
 
@@ -24,7 +24,7 @@ public class LineDrawer : MonoBehaviour
     private void FetchExternalVariables()
     {
         line = GetComponent<LineRenderer>();
-        targeter = GetComponent<PlayerTargettingManager>();
+        targeter = GetComponent<PlayerDrawHandler>();
         if (targeter == null) { Debug.LogError("Targeter missing from line drawer GO"); }
     }
     private void SetLineVariables()
@@ -64,19 +64,33 @@ public class LineDrawer : MonoBehaviour
         
         float stepTimePassed;
         Vector3 startingPos = objectPos;
-        
-        //Calculate full trajectory
-        for(int i = 0; i < linePositions; i++)
+
+        for (int i = 0; i < linePositions; i++)
         {
             stepTimePassed = stepInterval * i;
 
             float xPos = startingPos.x + velocityVector.x * stepTimePassed;
             float yPos = startingPos.y + velocityVector.y * stepTimePassed - 0.5f * gravity * stepTimePassed * stepTimePassed;
-
             Vector3 newPoint = new Vector3(xPos, yPos, 0);
+
+            if (i == 0) 
+            {
+                linePoints.Add(newPoint);
+                continue;
+            }
+
+            Vector3 previousPoint = linePoints[i - 1];
+
+            Vector3 direction = newPoint - previousPoint;
+            float distance = Vector3.Distance(previousPoint, newPoint);
             
-            linePoints.Add(newPoint);
+
+            if (Physics.Raycast(previousPoint, direction, distance, ~playerMask))
+            { break; }
+
+            linePoints.Add(newPoint);            
         }
+
         line.positionCount = Mathf.Max(0, linePoints.Count);
         line.SetPositions(linePoints.ToArray());
     }

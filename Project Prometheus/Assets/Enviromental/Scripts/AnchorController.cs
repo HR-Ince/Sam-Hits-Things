@@ -1,34 +1,37 @@
 using UnityEngine;
 
-public class AnchorController : ElementVesselController
+public class AnchorController : MonoBehaviour
 {
-    [SerializeField] Element heldElement;
-    [SerializeField] protected Sprite noneSprite, earthSprite;
+    [SerializeField] Element _heldElement;
+    [SerializeField] protected Sprite _defaultSprite, _activeSprite;
 
-    public Element HeldElement { get { return heldElement; } }
+    // Component References
+    private SpriteRenderer _renderer;
 
-    private DemonElementHandler myDemon;
-
-    public void SetDemon(DemonElementHandler demon) { myDemon = demon; }
-
-    public override ElementVesselController ReportSelf()
+    private void Awake()
     {
-        return this;
+        GetComponentReferences();
     }
 
-    protected override void UpdateSprite()
+    private void GetComponentReferences()
     {
-        if (heldElement == Element.Earth) { _renderer.sprite = earthSprite; }
-        else { _renderer.sprite = noneSprite; }
-
+        _renderer = GetComponentInChildren<SpriteRenderer>();
     }
-    public override bool CanReceiveElement()
-    { return myDemon.IsHoldingElement; }
-    public override bool CanGiveElement()
-    { return heldElement != Element.None; }
-    public override void ReceiveElement(Element element)
-    { 
-        heldElement = element;
-        UpdateSprite();
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.transform.parent.TryGetComponent(out PlayerElementManager player))
+        {
+            player.AddUsableElementAndUpdate(_heldElement);
+            UpdateSprite();
+            other.gameObject.SetActive(false);
+        }
+        else { print("No manager"); }
+    }
+
+    private void UpdateSprite()
+    {
+        _renderer.sprite = _activeSprite;
+
     }
 }

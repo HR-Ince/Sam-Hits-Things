@@ -9,8 +9,9 @@ public class Buttonv2 : MonoBehaviour
     [SerializeField] GameEvent OnButtonPress;
     [SerializeField] GameEvent OnButtonLeft;
 
-    [SerializeField] List<Element> elementsOnButton = new List<Element>();
+    private List<Element> elementsOnButton = new List<Element>();
 
+    private bool isHacked;
     private bool elementIsOn;
     private bool isOff = true;
     private float hitTime;
@@ -56,18 +57,26 @@ public class Buttonv2 : MonoBehaviour
 
         elementIsOn = false;
     }
+    public void Hack()
+    {
+        isHacked = true;
+    }
+
+    public void Unhack()
+    {
+        isHacked = false;
+    }
+
     private void Update()
     {
-        if (Input.GetKeyDown("e")) { elementsOnButton.Add(Element.Earth); GetElementsOnButton(); }
-        if (Input.GetKeyDown("f")) { elementsOnButton.Remove(Element.Earth); GetElementsOnButton(); }
-
-        if (elementIsOn && isOff && Time.time - hitTime >= delayBeforeOn)
+        if (elementIsOn && isOff && Time.time - hitTime >= delayBeforeOn ||
+            isHacked && isOff && Time.time - hitTime >= delayBeforeOn)
         {
             if (OnButtonPress != null)
                 OnButtonPress.Invoke();
             isOff = false;
         }
-        if(!elementIsOn && !isOff)
+        if(!isHacked && !elementIsOn && !isOff)
         {
             print("button is off");
             if (OnButtonLeft != null)

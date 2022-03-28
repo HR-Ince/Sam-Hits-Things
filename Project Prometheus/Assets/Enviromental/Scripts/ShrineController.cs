@@ -1,56 +1,48 @@
-using System.Collections;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ShrineController : ElementVesselController
+public class ShrineController : MonoBehaviour
 {
-    [SerializeField] List<Element> requiredElements;
+    [SerializeField] List<Element> requiredElements = new List<Element>();
+    private Dictionary<Element, bool> requiredElementsObtained = new Dictionary<Element, bool>();
 
-    [SerializeField] private List<Element> heldElements;
-
-    private ChaplainElementHandler chaplain;
-
-    private new void Awake()
+    private void OnTriggerEnter(Collider other)
     {
-        base.Awake();
-        heldElements = new List<Element>(requiredElements.Count);
-        chaplain = FindObjectOfType<ChaplainElementHandler>();
+        if(other.gameObject.transform.parent.TryGetComponent(out PlayerElementManager player))
+        {
+            CheckElements(player.HeldElements);
+            other.gameObject.SetActive(false);
+        }
     }
 
-    public override ElementVesselController ReportSelf()
-    {
-        return this;
-    }
-
-    protected override void UpdateSprite()
+    protected void UpdateSprite()
     {
         //Change sprite
     }
 
-    public override bool CanReceiveElement()
+    private void CheckElements(Element[] elements)
     {
-        foreach(Element element in chaplain.HeldElements)
+        if(elements.Length != requiredElements.Count) { return; }
+
+        Dictionary<Element, bool> requiredElementsObtained = new Dictionary<Element, bool>();
+
+        foreach (var element in requiredElements)
         {
-            if (!heldElements.Contains(element) || requiredElements.Contains(element)) { return true; }
-            else { return false; }
+            if (element == Element.None) continue;
+            requiredElementsObtained.Add(element, false);
         }
 
-        return false;
-    }
-    public override bool CanGiveElement()
-    { return false; }
-    private void CheckElements()
-    {
-        if(heldElements.Count != requiredElements.Count) { return; }
+        foreach (Element element in requiredElements)
+        {
+            if (elements.ToList<Element>().Contains(element))
+            {
+                requiredElementsObtained[element] = true;
+            }
+        }
+
+        if (requiredElementsObtained.ContainsValue(false)) return;
 
         print("Win");
-    }
-
-    public override void ReceiveElement(Element element)
-    {
-        if (heldElements.Contains(element) || !requiredElements.Contains(element)) { print("Bad pass"); return; }
-
-        heldElements.Add(element);
-        CheckElements();
     }
 }

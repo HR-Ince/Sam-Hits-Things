@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
+using UnityEngine.InputSystem;
 
 public class ChaplainPlayerController : MonoBehaviour
 {
@@ -13,50 +13,56 @@ public class ChaplainPlayerController : MonoBehaviour
     [SerializeField] Vector3 throwOriginOffset;
     [Header("Externals")]
     [SerializeField] PlayerStateRegister register;
-    [SerializeField] ActiveObjects actives;
 
-    public GameObject[] Demons { get { return demons.ToArray(); } }
+    // Public variables
+    public GameObject[] PlayerDemons { get { return Demons.ToArray(); } }
 
-    private bool goodPress = false;
-
-    private List<GameObject> demons;
+    // Private variables
+    private List<GameObject> Demons;
+    private bool _launchReadied = false;
+    private Vector2 pointerPos;
+    
+    // Component references
+    private PlayerAnimationController _anim;
+    private LineDrawer _line;
+    private PlayerDrawHandler _drawHandler;
+    private PlayerInput _input;
+    private Pointer _pointer;
     private LaunchData demonLaunchData;
-
-    private PlayerAnimationController anim;
-    private LaunchModule launcher;
-    private LineDrawer line;
-    private PlayerInput input;
-    private PlayerTargettingManager targeter;
-
 
     private void Awake()
     {
-        FetchExternalVariables();
+        FetchComponentReferences();
 
         register.PlayerOne = gameObject;
         SetupDemons();
     }
+
+    private void FetchComponentReferences()
+    {
+        _anim = GetComponent<PlayerAnimationController>();
+        _input = new PlayerInput();
+        _pointer = Pointer.current;
+        _line = GetComponentInChildren<LineDrawer>();
+        _drawHandler = GetComponentInChildren<PlayerDrawHandler>();
+    }
+
     private void SetupDemons()
     {
-        demons = new List<GameObject>();
-        demons.Add(demon);
-        while (demons.Count < noOfDemons)
+        Demons = new List<GameObject>();
+        Demons.Add(demon);
+        while (Demons.Count < noOfDemons)
         {
-            var temp = Instantiate(demon);
-            demons.Add(temp);
-            temp.name = "Demon " + demons.IndexOf(temp);
+            var temp = Instantiate(demon, transform);
+            Demons.Add(temp);
+            temp.name = "Demon " + Demons.IndexOf(temp);
         }
-        if (demons.Count > 0)
+        if (Demons.Count > 0)
         {
-            SetDemonVariables(demons[0]);
+            SetDemonVariables(Demons[0]);
 
-            foreach (GameObject demon in demons)
+            foreach (GameObject demon in Demons)
             {
-                if (demon.TryGetComponent(out DemonController controller))
-                {
-                    controller.SetContextMenu(demonContextMenu);
-                }
-
                 demon.SetActive(false);
             }
         }
@@ -70,15 +76,6 @@ public class ChaplainPlayerController : MonoBehaviour
             demon.transform.position = transform.position + throwOriginOffset;
         }
     }
-    private void FetchExternalVariables()
-    {
-        anim = GetComponent<PlayerAnimationController>();
-        input = GetComponent<PlayerInput>();
-
-        launcher = GetComponentInChildren<LaunchModule>();
-        line = GetComponentInChildren<LineDrawer>();
-        targeter = GetComponentInChildren<PlayerTargettingManager>();
-    }
 
     private void SetDemonVariables(GameObject obj)
     {
@@ -86,57 +83,72 @@ public class ChaplainPlayerController : MonoBehaviour
         demonLaunchData = demon.GetComponent<LaunchData>();
     }
 
-    private void Update()
+    public void OnPress(InputAction.CallbackContext context)
     {
-        if (demons.Count > 0 && input.GamePressed)
-        {
-            SetDemonVariables(demons[0]);
-            goodPress = true;
-            targeter.SetupTargetting(input.PressPos);
-            demon.transform.position = transform.position + throwOriginOffset;
-            line.SetLaunchObjectVariables(demonLaunchData);
-        }
-        if (goodPress && input.PressHeld)
-        {
-            anim.PlayReady();
+        if (Demons.Count <= 0 || !context.started) return;
 
-            targeter.AdjustTargetting(input.PressPos);
-            if (targeter.DrawIsSufficient())
-            {
-                line.ManageTrajectoryLine(throwStrength, ForceMode.Impulse);
-            }
-            else
-            {
-                line.DisableLine();
-                //anim.PlayWithdraw();
-            }
+        _launchReadied = true;
+        SetDemonVariables(Demons[0]);
+        _drawHandler.SetupTargetting(pointerPos);
+        demon.transform.position = transform.position + throwOriginOffset;
+        _line.SetLaunchObjectVariables(demonLaunchData);
+    }
 
-        }
-        if (goodPress && input.PressReleased)
+    public void TrackPointer(InputAction.CallbackContext context)
+    {
+        pointerPos = context.ReadValue<Vector2>();
+
+        if (_launchReadied)
         {
-            line.DisableLine();
-            if (targeter.DrawIsSufficient())
-            {
-                demon.SetActive(true);
-                launcher.Launch(demonLaunchData.Rigidbody, targeter, throwStrength, ForceMode.Impulse);
-                anim.PlayThrow();
-                demons.RemoveAt(0);
-            }
-            goodPress = false;
+            AdjustLaunch();
         }
+    }
+
+    private void AdjustLaunch()
+    {
+        _anim.PlayReady();
+        _drawHandler.AdjustTargetting(pointerPos);
+        if (_drawHandler.DrawIsSufficient())
+        {
+            _line.ManageTrajectoryLine(throwStrength, ForceMode.Impulse);
+        }
+        else
+        {
+            _line.DisableLine();
+            //anim.PlayWithdraw();
+        }
+    }
+
+    public void OnDragReleased(InputAction.CallbackContext context)
+    {
+        if(!context.canceled) return;
+
+        _line.DisableLine();
+        if (_drawHandler.DrawIsSufficient())
+        {
+            demon.SetActive(true);
+            Launch(demonLaunchData.Rigidbody, ForceMode.Impulse);
+            _anim.PlayThrow();
+            Demons.RemoveAt(0);
+        }
+
+        _launchReadied = false;
+    }
+
+    private void Launch(Rigidbody body, ForceMode forceMode)
+    {
+        Vector3 force = _drawHandler.DirectionVector * (_drawHandler.DrawPercentage * throwStrength);
+        body.AddForce(force, forceMode);
     }
 
     public void RetrieveDemon()
     {
         ManageDemon();
-        demons.Add(demon);
+        Demons.Add(demon);
     }
 
     private void ManageDemon()
     {
-        SetDemonVariables(actives.ActiveDemon);
-        demon.GetComponent<DemonController>().ResetAssociations();
-        actives.SetActiveShrine(null);
         demonLaunchData.Rigidbody.drag = demonLaunchData.DefaultDrag;
         demon.SetActive(false);
     }

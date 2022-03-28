@@ -21,7 +21,7 @@ public class PointToPointMovement : MonoBehaviour
     private float tolerance;
     private int currentPointIndex;
     private PathType pathCache;
-    [SerializeField] private Vector3[] currentPoints;
+    private Vector3[] currentPoints;
     private Vector3 currentTarget;
 
     private void Start()
