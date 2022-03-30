@@ -1,59 +1,55 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 public class ChaplainPlayerController : MonoBehaviour
 {
     [Header("Human things")]
-    [SerializeField] float throwStrength;
+    [SerializeField] float _throwStrength;
     [Header("Demon things")]
-    [SerializeField] int noOfDemons;
-    [SerializeField] GameObject demon;
-    [SerializeField] GameObject demonContextMenu;
-    [SerializeField] Vector3 throwOriginOffset;
+    [SerializeField] int _noOfDemons;
+    [SerializeField] GameObject _demonPrefab;
+    [SerializeField] Vector3 _throwOriginOffset;
     [Header("Externals")]
-    [SerializeField] PlayerStateRegister register;
-
-    // Public variables
-    public GameObject[] PlayerDemons { get { return Demons.ToArray(); } }
+    [SerializeField] PlayerStateRegister _register;
 
     // Private variables
     private List<GameObject> Demons;
     private bool _launchReadied = false;
+    private GameObject _currentDemon;
     private Vector2 pointerPos;
-    
+
     // Component references
+    private LaunchData _currentDemonLaunchData;
+    private LineDrawer _throwVisualisation;
     private PlayerAnimationController _anim;
-    private LineDrawer _line;
     private PlayerDrawHandler _drawHandler;
-    private PlayerInput _input;
-    private Pointer _pointer;
-    private LaunchData demonLaunchData;
+    private PlayerElementManager _elementManager;
+    
 
     private void Awake()
     {
         FetchComponentReferences();
 
-        register.PlayerOne = gameObject;
+        _register.PlayerOne = gameObject;
         SetupDemons();
     }
 
     private void FetchComponentReferences()
     {
         _anim = GetComponent<PlayerAnimationController>();
-        _input = new PlayerInput();
-        _pointer = Pointer.current;
-        _line = GetComponentInChildren<LineDrawer>();
+        _throwVisualisation = GetComponentInChildren<LineDrawer>();
         _drawHandler = GetComponentInChildren<PlayerDrawHandler>();
+        _elementManager = GetComponentInChildren<PlayerElementManager>();
     }
 
     private void SetupDemons()
     {
         Demons = new List<GameObject>();
-        Demons.Add(demon);
-        while (Demons.Count < noOfDemons)
+        while (Demons.Count < _noOfDemons)
         {
-            var temp = Instantiate(demon, transform);
+            var temp = Instantiate(_demonPrefab, transform);
             Demons.Add(temp);
             temp.name = "Demon " + Demons.IndexOf(temp);
         }
@@ -68,30 +64,28 @@ public class ChaplainPlayerController : MonoBehaviour
         }
     }
 
-    private void Start()
-    {
-        if (demon.activeInHierarchy)
-        {
-            demon.SetActive(false);
-            demon.transform.position = transform.position + throwOriginOffset;
-        }
-    }
-
     private void SetDemonVariables(GameObject obj)
     {
-        demon = obj;
-        demonLaunchData = demon.GetComponent<LaunchData>();
+        _currentDemon = obj;
+        _currentDemonLaunchData = obj.GetComponent<LaunchData>();
     }
 
     public void OnPress(InputAction.CallbackContext context)
     {
-        if (Demons.Count <= 0 || !context.started) return;
+        if (Demons.Count <= 0 || !context.started ||
+            EventSystem.current.IsPointerOverGameObject()) return;
+
+        if (_currentDemon.activeSelf && _currentDemon.GetComponent<VesselStateManager>().IsActive)
+        {
+            _elementManager.OnAbilityActivated(_currentDemon);
+            return;
+        }
 
         _launchReadied = true;
         SetDemonVariables(Demons[0]);
         _drawHandler.SetupTargetting(pointerPos);
-        demon.transform.position = transform.position + throwOriginOffset;
-        _line.SetLaunchObjectVariables(demonLaunchData);
+        _currentDemon.transform.position = transform.position + _throwOriginOffset;
+        _throwVisualisation.SetLaunchObjectVariables(_currentDemonLaunchData);
     }
 
     public void TrackPointer(InputAction.CallbackContext context)
@@ -110,24 +104,24 @@ public class ChaplainPlayerController : MonoBehaviour
         _drawHandler.AdjustTargetting(pointerPos);
         if (_drawHandler.DrawIsSufficient())
         {
-            _line.ManageTrajectoryLine(throwStrength, ForceMode.Impulse);
+            _throwVisualisation.ManageTrajectoryLine(_throwStrength, ForceMode.Impulse);
         }
         else
         {
-            _line.DisableLine();
+            _throwVisualisation.DisableLine();
             //anim.PlayWithdraw();
         }
     }
 
     public void OnDragReleased(InputAction.CallbackContext context)
     {
-        if(!context.canceled) return;
+        if(!context.canceled || !_launchReadied) return;
 
-        _line.DisableLine();
+        _throwVisualisation.DisableLine();
         if (_drawHandler.DrawIsSufficient())
         {
-            demon.SetActive(true);
-            Launch(demonLaunchData.Rigidbody, ForceMode.Impulse);
+            _currentDemon.SetActive(true);
+            Launch(_currentDemonLaunchData.Rigidbody, ForceMode.Impulse);
             _anim.PlayThrow();
             Demons.RemoveAt(0);
         }
@@ -137,20 +131,31 @@ public class ChaplainPlayerController : MonoBehaviour
 
     private void Launch(Rigidbody body, ForceMode forceMode)
     {
-        Vector3 force = _drawHandler.DirectionVector * (_drawHandler.DrawPercentage * throwStrength);
+        Vector3 force = _drawHandler.DirectionVector * (_drawHandler.DrawPercentage * _throwStrength);
         body.AddForce(force, forceMode);
+    }
+
+    private void Update()
+    {
+        if (_currentDemon.GetComponent<VesselStateManager>().IsActive)
+        {
+            _register.IsActiveVessel = true;
+            return;
+        }
+
+        _register.IsActiveVessel = false;
     }
 
     public void RetrieveDemon()
     {
         ManageDemon();
-        Demons.Add(demon);
+        Demons.Add(_currentDemon);
     }
 
     private void ManageDemon()
     {
-        demonLaunchData.Rigidbody.drag = demonLaunchData.DefaultDrag;
-        demon.SetActive(false);
+        _currentDemonLaunchData.Rigidbody.drag = _currentDemonLaunchData.DefaultDrag;
+        _currentDemon.SetActive(false);
     }
 }
 

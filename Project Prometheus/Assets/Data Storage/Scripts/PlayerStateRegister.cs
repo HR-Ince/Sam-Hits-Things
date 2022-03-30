@@ -1,12 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 [CreateAssetMenu]
 public class PlayerStateRegister : ScriptableObject
 {
-    private GameObject playerOne = null;
+    public bool IsActiveVessel { get; set; }
     public GameObject PlayerOne { get { return playerOne; } set { playerOne = value; } }
-    private Vector3 spawnPoint;
     public Vector3 SpawnPoint { get { return spawnPoint; } set { spawnPoint = value; } }
+
+    private GameObject playerOne = null;
+    private Vector3 spawnPoint;
+    
 }

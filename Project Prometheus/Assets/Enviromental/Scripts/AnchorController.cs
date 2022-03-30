@@ -2,8 +2,11 @@ using UnityEngine;
 
 public class AnchorController : MonoBehaviour
 {
-    [SerializeField] Element _heldElement;
-    [SerializeField] protected Sprite _defaultSprite, _activeSprite;
+    // Private variables
+    [SerializeField] private Element _heldElement;
+    [SerializeField] private Sprite _defaultSprite, _activeSprite;
+
+    private bool _isActive = false;
 
     // Component References
     private SpriteRenderer _renderer;
@@ -20,11 +23,14 @@ public class AnchorController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (_isActive) return;
+
         if (other.gameObject.transform.parent.TryGetComponent(out PlayerElementManager player))
         {
             player.AddUsableElementAndUpdate(_heldElement);
             UpdateSprite();
             other.gameObject.SetActive(false);
+            _isActive = true;
         }
         else { print("No manager"); }
     }
@@ -32,6 +38,5 @@ public class AnchorController : MonoBehaviour
     private void UpdateSprite()
     {
         _renderer.sprite = _activeSprite;
-
     }
 }

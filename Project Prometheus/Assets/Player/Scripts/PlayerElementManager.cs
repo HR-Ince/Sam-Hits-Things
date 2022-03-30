@@ -10,42 +10,28 @@ public class PlayerElementManager : MonoBehaviour
     // Public variables
     public Element[] HeldElements { get { return UsableElements.ToArray(); } }
 
-    private List<Element> UsableElements = new List<Element>();
-
     // Private variables
-    [SerializeField] private TMP_Text[] ElementTexts;
+    [SerializeField] private float _earthForceMultiplier;
+    [SerializeField] private float _airJumpStrength;
+    [SerializeField] private ElementButton[] ElementButtons;
 
-    private Element activeElement;
-    private GameObject _nextUsedVessel;
-
-    private delegate void ActivateAbility();
+    private List<Element> UsableElements = new List<Element>();
+    private bool _abilityUsed;
+    private delegate void ActivateAbility(Rigidbody rb, VesselStateManager vesselState);
     private ActivateAbility activateAbility;
 
-    private void Awake()
-    {
-        activeElement = Element.None;
-        UpdateUI();
-    }
-
     // Injections
-    public void SetNextUsedVessel(GameObject vessel)
-    {
-        _nextUsedVessel = vessel;
-    }
-    private void SetActiveElement(Element elementToActivate)
-    {
-        activeElement = elementToActivate;
-    }
     private void AddUsableElement(Element elementToAdd)
     {
-        if (UsableElements.Contains(elementToAdd)) return;
+        if (UsableElements.Contains(elementToAdd) ||
+            elementToAdd == Element.None) return;
 
         UsableElements.Add(elementToAdd);
     }
 
-    public void SetActiveElementAndUpdate(Element elementToActivate)
+    public void SetElementAbility(Element elementToActivate)
     {
-        SetActiveElement(elementToActivate);
+        print("Setting element " + elementToActivate);
         UpdateAbility(elementToActivate);
     }
 
@@ -57,18 +43,15 @@ public class PlayerElementManager : MonoBehaviour
 
     private void UpdateUI()
     {
-        if(UsableElements.Count <= 0)
+        for (int i = 0; i < ElementButtons.Length; i++)
         {
-            foreach(TMP_Text textElement in ElementTexts)
+            if (i < UsableElements.Count)
             {
-                textElement.text = "Empty";
+                ElementButtons[i].SetAssociatedElementAndUpdate(UsableElements[i]);
+                continue;
             }
-            return;
-        }
 
-        for (int i = 0; i < UsableElements.Count; i++)
-        {
-            ElementTexts[i].text = UsableElements[i].ToString();
+            ElementButtons[i].MarkEmpty();
         }
     }
 
@@ -101,28 +84,53 @@ public class PlayerElementManager : MonoBehaviour
         }
     }
 
-    public void OnAbilityActivated()
+    public void OnAbilityActivated(GameObject vessel)
     {
-        activateAbility();
+        if (activateAbility == null || _abilityUsed == true) return;
+
+        activateAbility(vessel.GetComponent<Rigidbody>(), vessel.GetComponent<VesselStateManager>());
     }
 
-    private void ElementAbilityNone()
+    private void ElementAbilityNone(Rigidbody rb, VesselStateManager vesselState)
     {
         print("No ability");
     }
-    private void ElementAbilityEarth()
+
+    private void ElementAbilityEarth(Rigidbody rb, VesselStateManager vesselState)
     {
         print("Earth ability");
+        
+        if (!vesselState.IsGrounded)
+        {
+            rb.velocity = Vector3.down * _earthForceMultiplier;
+            _abilityUsed = true;
+            return;
+        }
+
+        rb.velocity *= _earthForceMultiplier;
+        _abilityUsed = true;
     }
-    private void ElementAbilityWind()
+
+    private void ElementAbilityWind(Rigidbody rb, VesselStateManager vesselState)
     {
-        print("Wind ability");
+        if (!vesselState.IsGrounded)
+        {
+            rb.useGravity = false;
+            rb.velocity = Vector3.zero;
+            _abilityUsed = true;
+            return;
+        }
+
+        rb.AddForce(Vector3.up * _airJumpStrength, ForceMode.VelocityChange);
+        _abilityUsed = true;
     }
-    private void ElementAbilityFire()
+
+    private void ElementAbilityFire(Rigidbody rb, VesselStateManager vesselState)
     {
         print("Fire ability");
     }
-    private void ElementAbilityWater()
+
+    private void ElementAbilityWater(Rigidbody rb, VesselStateManager vesselState)
     {
         print("Water ability");
     }
