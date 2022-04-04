@@ -8,6 +8,7 @@ public enum Element { None, Wind, Earth, Fire, Water }
 public class PlayerElementManager : MonoBehaviour
 {
     // Public variables
+    public bool AbilityUsed { get { return _abilityUsed; } set { _abilityUsed = value; } }
     public Element[] HeldElements { get { return UsableElements.ToArray(); } }
 
     // Private variables
@@ -17,8 +18,17 @@ public class PlayerElementManager : MonoBehaviour
 
     private List<Element> UsableElements = new List<Element>();
     private bool _abilityUsed;
+
     private delegate void ActivateAbility(Rigidbody rb, VesselStateManager vesselState);
     private ActivateAbility activateAbility;
+
+    // Component references
+    private ChaplainPlayerController _playerController;
+
+    private void Awake()
+    {
+        _playerController = GetComponent<ChaplainPlayerController>();
+    }
 
     // Injections
     private void AddUsableElement(Element elementToAdd)
@@ -115,8 +125,7 @@ public class PlayerElementManager : MonoBehaviour
     {
         if (!vesselState.IsGrounded)
         {
-            rb.useGravity = false;
-            rb.velocity = Vector3.zero;
+            _playerController.WindLaunchPrep();
             _abilityUsed = true;
             return;
         }

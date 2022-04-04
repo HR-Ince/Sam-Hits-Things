@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
@@ -17,21 +18,22 @@ public class ChaplainPlayerController : MonoBehaviour
     // Private variables
     private List<GameObject> Demons;
     private bool _launchReadied = false;
+    private bool _isWindLaunch = false;
     private GameObject _currentDemon;
     private Vector2 pointerPos;
 
     // Component references
-    private LaunchData _currentDemonLaunchData;
     private LineDrawer _throwVisualisation;
     private PlayerAnimationController _anim;
     private PlayerDrawHandler _drawHandler;
     private PlayerElementManager _elementManager;
+    private Rigidbody _currentVesselRB;
+    private VesselStateManager _currentVesselVSM;
     
 
     private void Awake()
     {
         FetchComponentReferences();
-
         _register.PlayerOne = gameObject;
         SetupDemons();
     }
@@ -39,9 +41,10 @@ public class ChaplainPlayerController : MonoBehaviour
     private void FetchComponentReferences()
     {
         _anim = GetComponent<PlayerAnimationController>();
+        _elementManager = GetComponent<PlayerElementManager>();
+
         _throwVisualisation = GetComponentInChildren<LineDrawer>();
         _drawHandler = GetComponentInChildren<PlayerDrawHandler>();
-        _elementManager = GetComponentInChildren<PlayerElementManager>();
     }
 
     private void SetupDemons()
@@ -52,22 +55,25 @@ public class ChaplainPlayerController : MonoBehaviour
             var temp = Instantiate(_demonPrefab, transform);
             Demons.Add(temp);
             temp.name = "Demon " + Demons.IndexOf(temp);
+            temp.SetActive(false);
         }
         if (Demons.Count > 0)
         {
-            SetDemonVariables(Demons[0]);
-
-            foreach (GameObject demon in Demons)
-            {
-                demon.SetActive(false);
-            }
+            NewThrow();
         }
     }
 
-    private void SetDemonVariables(GameObject obj)
+    public void NewThrow()
     {
-        _currentDemon = obj;
-        _currentDemonLaunchData = obj.GetComponent<LaunchData>();
+        print(Demons.Count);
+        if(_currentVesselVSM)
+            _currentVesselVSM.OnInactive.RemoveListener(OnVesselInactive);
+        Demons.RemoveAt(0);
+        _currentDemon = Demons[0];
+        _currentVesselRB = _currentDemon.GetComponent<Rigidbody>();
+        _currentVesselVSM = _currentDemon.GetComponent<VesselStateManager>();
+        _currentDemon.transform.position = transform.position + _throwOriginOffset;
+        _elementManager.AbilityUsed = false;
     }
 
     public void OnPress(InputAction.CallbackContext context)
@@ -75,17 +81,28 @@ public class ChaplainPlayerController : MonoBehaviour
         if (Demons.Count <= 0 || !context.started ||
             EventSystem.current.IsPointerOverGameObject()) return;
 
-        if (_currentDemon.activeSelf && _currentDemon.GetComponent<VesselStateManager>().IsActive)
+        if (_currentDemon.activeSelf)
         {
             _elementManager.OnAbilityActivated(_currentDemon);
             return;
         }
 
+        PrepLaunch();
+    }
+
+    public void WindLaunchPrep()
+    {
+        _isWindLaunch = true;
+        _currentVesselRB.useGravity = false;
+        _currentVesselRB.velocity = Vector3.zero;
+        _currentVesselVSM.ResetActive();
+        PrepLaunch();
+    }
+
+    private void PrepLaunch()
+    {
         _launchReadied = true;
-        SetDemonVariables(Demons[0]);
         _drawHandler.SetupTargetting(pointerPos);
-        _currentDemon.transform.position = transform.position + _throwOriginOffset;
-        _throwVisualisation.SetLaunchObjectVariables(_currentDemonLaunchData);
     }
 
     public void TrackPointer(InputAction.CallbackContext context)
@@ -104,7 +121,7 @@ public class ChaplainPlayerController : MonoBehaviour
         _drawHandler.AdjustTargetting(pointerPos);
         if (_drawHandler.DrawIsSufficient())
         {
-            _throwVisualisation.ManageTrajectoryLine(_throwStrength, ForceMode.Impulse);
+            _throwVisualisation.ManageTrajectoryLine(_currentVesselRB, _throwStrength, ForceMode.Impulse);
         }
         else
         {
@@ -121,12 +138,17 @@ public class ChaplainPlayerController : MonoBehaviour
         if (_drawHandler.DrawIsSufficient())
         {
             _currentDemon.SetActive(true);
-            Launch(_currentDemonLaunchData.Rigidbody, ForceMode.Impulse);
+            _currentVesselVSM.OnInactive.AddListener(OnVesselInactive);
+            Launch(_currentVesselRB, ForceMode.Impulse);
             _anim.PlayThrow();
-            Demons.RemoveAt(0);
         }
 
+        if (_isWindLaunch)
+        {
+            _currentVesselRB.useGravity = true;
+        } 
         _launchReadied = false;
+        _register.IsActiveVessel = true;
     }
 
     private void Launch(Rigidbody body, ForceMode forceMode)
@@ -135,27 +157,12 @@ public class ChaplainPlayerController : MonoBehaviour
         body.AddForce(force, forceMode);
     }
 
-    private void Update()
+    public void OnVesselInactive()
     {
-        if (_currentDemon.GetComponent<VesselStateManager>().IsActive)
-        {
-            _register.IsActiveVessel = true;
-            return;
-        }
+        if (!_register.IsActiveVessel) return;
 
         _register.IsActiveVessel = false;
-    }
-
-    public void RetrieveDemon()
-    {
-        ManageDemon();
-        Demons.Add(_currentDemon);
-    }
-
-    private void ManageDemon()
-    {
-        _currentDemonLaunchData.Rigidbody.drag = _currentDemonLaunchData.DefaultDrag;
-        _currentDemon.SetActive(false);
+        NewThrow();
     }
 }
 

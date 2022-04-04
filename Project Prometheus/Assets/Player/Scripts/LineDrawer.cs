@@ -4,17 +4,18 @@ using UnityEngine;
 [RequireComponent(typeof(LineRenderer))]
 public class LineDrawer : MonoBehaviour
 {
-    [SerializeField] float lineWidth = 1f;
-    [SerializeField] int linePointsPerUnit = 10;
-    [SerializeField] LayerMask playerMask;
+    //Private variables
+    [SerializeField] float _lineWidth = 1f;
+    [SerializeField] int _linePointsPerUnit = 10;
+    [SerializeField] LayerMask _playerMask;
 
-    private Vector3 objectPos;
-    private float objectMass;
-    private float objectGravityMod;
+    private List<Vector3> LinePoints = new List<Vector3>();
 
-    private PlayerDrawHandler targeter;
-    private LineRenderer line;
-    private List<Vector3> linePoints = new List<Vector3>();
+
+    // Component references
+    private PlayerDrawHandler _targeter;
+    private LineRenderer _line;
+    
 
     private void Awake()
     {
@@ -23,47 +24,40 @@ public class LineDrawer : MonoBehaviour
     }
     private void FetchExternalVariables()
     {
-        line = GetComponent<LineRenderer>();
-        targeter = GetComponent<PlayerDrawHandler>();
-        if (targeter == null) { Debug.LogError("Targeter missing from line drawer GO"); }
+        _line = GetComponent<LineRenderer>();
+        _targeter = GetComponent<PlayerDrawHandler>();
+        if (_targeter == null) { Debug.LogError("Targeter missing from line drawer GO"); }
     }
     private void SetLineVariables()
     {
-        line.startWidth = lineWidth;
-        line.endWidth = lineWidth;
-        line.enabled = false;
+        _line.startWidth = _lineWidth;
+        _line.endWidth = _lineWidth;
+        _line.enabled = false;
     }
 
-    public void SetLaunchObjectVariables(LaunchData launchData)
+    public void ManageTrajectoryLine(Rigidbody rb, float thrust, ForceMode forceMode)
     {
-        objectPos = launchData.transform.position;
-        objectMass = launchData.GetMass();
-        objectGravityMod = launchData.GravityModifier;
-    }
-
-    public void ManageTrajectoryLine(float thrust, ForceMode forceMode)
-    {
-        Vector3 targetDirection = targeter.DirectionVector;
+        Vector3 targetDirection = _targeter.DirectionVector;
 
         if (float.IsNaN(targetDirection.x) || float.IsNaN(targetDirection.y)) { return; }
-        line.enabled = true;
+        _line.enabled = true;
         
         float forceDuration = forceMode == ForceMode.Force || forceMode == ForceMode.Acceleration ? Time.fixedDeltaTime : 1;
-        float mass = forceMode == ForceMode.Impulse || forceMode == ForceMode.Force ? objectMass : 1;
+        float mass = forceMode == ForceMode.Impulse || forceMode == ForceMode.Force ? rb.mass : 1;
         
-        Vector3 forceVector = targetDirection * (targeter.DrawPercentage * thrust);
+        Vector3 forceVector = targetDirection * (_targeter.DrawPercentage * thrust);
         Vector3 velocityVector = (forceVector / mass) * forceDuration;
         
 
-        float gravity = -Physics.gravity.y * objectGravityMod;
+        float gravity = -Physics.gravity.y;
         float flightTime = Vector3.Magnitude(velocityVector) / (gravity / 2);
-        float linePositions = Mathf.FloorToInt(flightTime * linePointsPerUnit);
+        float linePositions = Mathf.FloorToInt(flightTime * _linePointsPerUnit);
         float stepInterval = flightTime / linePositions;
 
-        linePoints.Clear();
+        LinePoints.Clear();
         
         float stepTimePassed;
-        Vector3 startingPos = objectPos;
+        Vector3 startingPos = rb.transform.position;
 
         for (int i = 0; i < linePositions; i++)
         {
@@ -75,40 +69,40 @@ public class LineDrawer : MonoBehaviour
 
             if (i == 0) 
             {
-                linePoints.Add(newPoint);
+                LinePoints.Add(newPoint);
                 continue;
             }
 
-            Vector3 previousPoint = linePoints[i - 1];
+            Vector3 previousPoint = LinePoints[i - 1];
 
             Vector3 direction = newPoint - previousPoint;
             float distance = Vector3.Distance(previousPoint, newPoint);
             
-
-            if (Physics.Raycast(previousPoint, direction, distance, ~playerMask))
+            // Check line doesn't pass through objects
+            if (Physics.Raycast(previousPoint, direction, distance, ~_playerMask))
             { break; }
 
-            linePoints.Add(newPoint);            
+            LinePoints.Add(newPoint);            
         }
 
-        line.positionCount = Mathf.Max(0, linePoints.Count);
-        line.SetPositions(linePoints.ToArray());
+        _line.positionCount = Mathf.Max(0, LinePoints.Count);
+        _line.SetPositions(LinePoints.ToArray());
     }
     public void ManageBasicLine(Vector3 targetDirection, float length)
     {
         if (float.IsNaN(targetDirection.x) || float.IsNaN(targetDirection.y)) { return; }
-        line.enabled = true;
+        _line.enabled = true;
         Vector3 targetVector = Vector3.ClampMagnitude(targetDirection * length, 5);
-        targetVector += line.GetPosition(0);
+        targetVector += _line.GetPosition(0);
 
-        for (int i = 1; i < line.positionCount; i++)
+        for (int i = 1; i < _line.positionCount; i++)
         {
-            float interval = (float)i / line.positionCount;
-            line.SetPosition(i, Vector3.Lerp(line.GetPosition(0), targetVector, interval));
+            float interval = (float)i / _line.positionCount;
+            _line.SetPosition(i, Vector3.Lerp(_line.GetPosition(0), targetVector, interval));
         }
     }
     public void DisableLine()
     {
-        line.enabled = false;
+        _line.enabled = false;
     }
 }

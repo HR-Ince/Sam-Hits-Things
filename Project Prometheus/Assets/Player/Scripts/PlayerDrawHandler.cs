@@ -25,9 +25,9 @@ public class PlayerDrawHandler : MonoBehaviour
     public void AdjustTargetting(Vector3 inputPos)
     {
         float xDraw = (_pressPos.x - inputPos.x) / 40; // Division to "convert" from screen units
-        xDraw = Mathf.Clamp(xDraw, _minDrawX, _maxDraw);
+        xDraw = Mathf.Clamp(xDraw, -_maxDraw, _maxDraw);
         float yDraw = (_pressPos.y - inputPos.y) / 20; // Division to "convert" from screen units
-        yDraw = Mathf.Clamp(yDraw, _minDrawY, _maxDraw);
+        yDraw = Mathf.Clamp(yDraw, -_maxDraw, _maxDraw);
         Vector3 drawVector = new Vector3(xDraw, yDraw);
 
         float drawLength = Vector2.Distance(Vector2.zero, drawVector);

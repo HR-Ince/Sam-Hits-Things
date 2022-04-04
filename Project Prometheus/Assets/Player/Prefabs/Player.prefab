@@ -159,11 +159,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b47e19daa6b65ab40800a8a74e00df57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lineWidth: 0.3
-  linePointsPerUnit: 6
-  playerMask:
+  _lineWidth: 0.3
+  _linePointsPerUnit: 10
+  _playerMask:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 0
 --- !u!1 &554992016419898590
 GameObject:
   m_ObjectHideFlags: 0
@@ -320,7 +320,7 @@ MonoBehaviour:
   _noOfDemons: 5
   _demonPrefab: {fileID: 2998808862122743243, guid: 24cb011dd6cdd5f4285f9c109bf53e6b,
     type: 3}
-  _throwOriginOffset: {x: 0, y: 0, z: 0}
+  _throwOriginOffset: {x: 2, y: 0.5, z: 0}
   _register: {fileID: 11400000, guid: 82cf4dab59a7c1b4899d9e4f607f8bc3, type: 2}
 --- !u!114 &477990268062339496
 MonoBehaviour:
