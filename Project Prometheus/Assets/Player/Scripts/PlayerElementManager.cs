@@ -13,11 +13,16 @@ public class PlayerElementManager : MonoBehaviour
 
     // Private variables
     [SerializeField] private float _earthForceMultiplier;
-    [SerializeField] private float _airJumpStrength;
+    [SerializeField] private float _windJumpStrength;
+    [SerializeField] private float _waterSwapRadius;
+    [SerializeField] private LayerMask _waterSwapLayerMask;
     [SerializeField] private ElementButton[] ElementButtons;
 
     private List<Element> UsableElements = new List<Element>();
+    private Collider[] _waterSwapColliders;
     private bool _abilityUsed;
+    private bool _shouldWaitForAbility;
+    private Vector3 _waterVelocityCache;
 
     private delegate void ActivateAbility(Rigidbody rb, VesselStateManager vesselState);
     private ActivateAbility activateAbility;
@@ -99,6 +104,7 @@ public class PlayerElementManager : MonoBehaviour
         if (activateAbility == null || _abilityUsed == true) return;
 
         activateAbility(vessel.GetComponent<Rigidbody>(), vessel.GetComponent<VesselStateManager>());
+        if(!_shouldWaitForAbility) _abilityUsed = true;
     }
 
     private void ElementAbilityNone(Rigidbody rb, VesselStateManager vesselState)
@@ -113,25 +119,23 @@ public class PlayerElementManager : MonoBehaviour
         if (!vesselState.IsGrounded)
         {
             rb.velocity = Vector3.down * _earthForceMultiplier;
-            _abilityUsed = true;
             return;
         }
 
         rb.velocity *= _earthForceMultiplier;
-        _abilityUsed = true;
     }
 
     private void ElementAbilityWind(Rigidbody rb, VesselStateManager vesselState)
     {
         if (!vesselState.IsGrounded)
         {
-            _playerController.WindLaunchPrep();
-            _abilityUsed = true;
+            _playerController.PauseVesselFlight();
+            _playerController.PrepLaunch();
+            
             return;
         }
 
-        rb.AddForce(Vector3.up * _airJumpStrength, ForceMode.VelocityChange);
-        _abilityUsed = true;
+        rb.AddForce(Vector3.up * _windJumpStrength, ForceMode.VelocityChange);
     }
 
     private void ElementAbilityFire(Rigidbody rb, VesselStateManager vesselState)
@@ -141,6 +145,29 @@ public class PlayerElementManager : MonoBehaviour
 
     private void ElementAbilityWater(Rigidbody rb, VesselStateManager vesselState)
     {
-        print("Water ability");
+        _waterVelocityCache = rb.velocity;
+        _playerController.PauseVesselFlight();
+
+        _waterSwapColliders = Physics.OverlapSphere(rb.transform.position, _waterSwapRadius, _waterSwapLayerMask);
+        activateAbility = ElementAbilityWaterSwap;
+        _shouldWaitForAbility = true;
+        
+    }
+
+    private void ElementAbilityWaterSwap(Rigidbody rb, VesselStateManager vesselState)
+    {
+        Physics.Raycast(Camera.main.ScreenPointToRay(_playerController.PointerPos), out RaycastHit hit, 100f, _waterSwapLayerMask);
+        if (_waterSwapColliders.Contains(hit.collider))
+        {
+            // Swap positions
+            Vector3 cachedPos = hit.transform.position;
+            hit.transform.position = rb.transform.position;
+            rb.transform.position = cachedPos;
+            // Reset rigidbody
+            rb.useGravity = true;
+            rb.velocity = _waterVelocityCache;
+
+            _shouldWaitForAbility = false;
+        }
     }
 }

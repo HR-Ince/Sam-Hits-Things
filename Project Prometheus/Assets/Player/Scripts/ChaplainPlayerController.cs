@@ -6,6 +6,9 @@ using UnityEngine.InputSystem;
 
 public class ChaplainPlayerController : MonoBehaviour
 {
+    // Public variables
+    public Vector2 PointerPos { get { return _pointerPos; } }
+
     [Header("Human things")]
     [SerializeField] float _throwStrength;
     [Header("Demon things")]
@@ -16,11 +19,11 @@ public class ChaplainPlayerController : MonoBehaviour
     [SerializeField] PlayerStateRegister _register;
 
     // Private variables
-    private List<GameObject> Demons;
+    private List<GameObject> Vessels;
     private bool _launchReadied = false;
-    private bool _isWindLaunch = false;
-    private GameObject _currentDemon;
-    private Vector2 pointerPos;
+    private bool _launchValid = false;
+    private GameObject _currentVessel;
+    private Vector2 _pointerPos;
 
     // Component references
     private LineDrawer _throwVisualisation;
@@ -49,15 +52,15 @@ public class ChaplainPlayerController : MonoBehaviour
 
     private void SetupDemons()
     {
-        Demons = new List<GameObject>();
-        while (Demons.Count < _noOfDemons)
+        Vessels = new List<GameObject>();
+        while (Vessels.Count < _noOfDemons)
         {
             var temp = Instantiate(_demonPrefab, transform);
-            Demons.Add(temp);
-            temp.name = "Demon " + Demons.IndexOf(temp);
+            Vessels.Add(temp);
+            temp.name = "Demon " + Vessels.IndexOf(temp);
             temp.SetActive(false);
         }
-        if (Demons.Count > 0)
+        if (Vessels.Count > 0)
         {
             NewThrow();
         }
@@ -65,66 +68,69 @@ public class ChaplainPlayerController : MonoBehaviour
 
     public void NewThrow()
     {
-        print(Demons.Count);
         if(_currentVesselVSM)
             _currentVesselVSM.OnInactive.RemoveListener(OnVesselInactive);
-        Demons.RemoveAt(0);
-        _currentDemon = Demons[0];
-        _currentVesselRB = _currentDemon.GetComponent<Rigidbody>();
-        _currentVesselVSM = _currentDemon.GetComponent<VesselStateManager>();
-        _currentDemon.transform.position = transform.position + _throwOriginOffset;
+        if (Vessels.Count <= 0) return;
+        _currentVessel = Vessels[0];
+        _currentVesselRB = _currentVessel.GetComponent<Rigidbody>();
+        _currentVesselVSM = _currentVessel.GetComponent<VesselStateManager>();
+        _currentVessel.transform.position = transform.position + _throwOriginOffset;
         _elementManager.AbilityUsed = false;
     }
 
     public void OnPress(InputAction.CallbackContext context)
     {
-        if (Demons.Count <= 0 || !context.started ||
-            EventSystem.current.IsPointerOverGameObject()) return;
+        if (!context.started) return;
 
-        if (_currentDemon.activeSelf)
+        OnPress();
+    }
+
+    public void OnPress()
+    {
+
+        if (_currentVessel.activeSelf)
         {
-            _elementManager.OnAbilityActivated(_currentDemon);
+            _elementManager.OnAbilityActivated(_currentVessel);
             return;
         }
 
         PrepLaunch();
     }
 
-    public void WindLaunchPrep()
+    public void PauseVesselFlight()
     {
-        _isWindLaunch = true;
         _currentVesselRB.useGravity = false;
         _currentVesselRB.velocity = Vector3.zero;
         _currentVesselVSM.ResetActive();
-        PrepLaunch();
     }
 
-    private void PrepLaunch()
+    public void PrepLaunch()
     {
         _launchReadied = true;
-        _drawHandler.SetupTargetting(pointerPos);
+        _drawHandler.SetupTargetting(_pointerPos);
     }
 
     public void TrackPointer(InputAction.CallbackContext context)
     {
-        pointerPos = context.ReadValue<Vector2>();
+        _pointerPos = context.ReadValue<Vector2>();
 
-        if (_launchReadied)
-        {
-            AdjustLaunch();
-        }
+        if (!_launchReadied) return;
+        
+        AdjustLaunch();
     }
 
     private void AdjustLaunch()
     {
         _anim.PlayReady();
-        _drawHandler.AdjustTargetting(pointerPos);
-        if (_drawHandler.DrawIsSufficient())
+        _drawHandler.AdjustTargetting(_pointerPos);
+        if (_drawHandler.DrawAboveMin())
         {
             _throwVisualisation.ManageTrajectoryLine(_currentVesselRB, _throwStrength, ForceMode.Impulse);
+            _launchValid = true;
         }
         else
         {
+            _launchValid = false;
             _throwVisualisation.DisableLine();
             //anim.PlayWithdraw();
         }
@@ -132,22 +138,38 @@ public class ChaplainPlayerController : MonoBehaviour
 
     public void OnDragReleased(InputAction.CallbackContext context)
     {
-        if(!context.canceled || !_launchReadied) return;
-
-        _throwVisualisation.DisableLine();
-        if (_drawHandler.DrawIsSufficient())
+        if (!context.canceled)
         {
-            _currentDemon.SetActive(true);
-            _currentVesselVSM.OnInactive.AddListener(OnVesselInactive);
-            Launch(_currentVesselRB, ForceMode.Impulse);
-            _anim.PlayThrow();
+            return;
         }
 
-        if (_isWindLaunch)
-        {
-            _currentVesselRB.useGravity = true;
-        } 
+        OnDragReleased();
+    }
+
+    public void OnDragReleased()
+    {
         _launchReadied = false;
+        _throwVisualisation.DisableLine();
+
+        if (_launchValid)
+        {
+            PrepareVesselForLaunch();
+            Launch(_currentVesselRB, ForceMode.Impulse);
+            TrackVesselActiveState();
+            _anim.PlayThrow();
+        }
+        _launchValid = false;
+    }
+
+    private void PrepareVesselForLaunch()
+    {
+        _currentVessel.SetActive(true);
+        _currentVesselRB.useGravity = true;
+    }
+
+    private void TrackVesselActiveState()
+    {
+        _currentVesselVSM.OnInactive.AddListener(OnVesselInactive);
         _register.IsActiveVessel = true;
     }
 
@@ -162,6 +184,7 @@ public class ChaplainPlayerController : MonoBehaviour
         if (!_register.IsActiveVessel) return;
 
         _register.IsActiveVessel = false;
+        Vessels.RemoveAt(0);
         NewThrow();
     }
 }

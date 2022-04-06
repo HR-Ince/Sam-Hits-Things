@@ -36,7 +36,7 @@ public class PlayerDrawHandler : MonoBehaviour
 
         _dirVector = Vector3.Normalize(drawVector);
     }
-    public bool DrawIsSufficient()
+    public bool DrawAboveMin()
     {
         return _drawPercentage > _minimumDrawPercentage;
     }

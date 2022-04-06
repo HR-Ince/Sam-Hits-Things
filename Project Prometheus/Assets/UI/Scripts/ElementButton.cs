@@ -1,8 +1,9 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 
-public class ElementButton : MonoBehaviour
+public class ElementButton : MonoBehaviour, IPointerClickHandler
 {
     public UnityEvent<Element> OnButtonPress;
     
@@ -24,8 +25,10 @@ public class ElementButton : MonoBehaviour
         _text.text = _associatedElement.ToString();
     }
 
-    public void ButtonPress()
+    public void OnPointerClick(PointerEventData data)
     {
+        if (data.button != PointerEventData.InputButton.Left) return;
+
         if(OnButtonPress != null) OnButtonPress.Invoke(_associatedElement);
     }
 
